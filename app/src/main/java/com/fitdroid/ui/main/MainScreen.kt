@@ -10,7 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.fitdroid.data.DefaultDataRepository
-import com.fitdroid.theme.FitdroidTheme
+import com.fitdroid.core.designsystem.theme.FitdroidTheme
 
 @Composable
 fun MainScreen(
