@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.fitdroid.android.application)
     alias(libs.plugins.fitdroid.android.compose)
+    alias(libs.plugins.fitdroid.metro)
 }
 
 android {
@@ -27,6 +28,9 @@ dependencies {
     implementation(projects.core.model)
     implementation(projects.core.common)
     implementation(projects.core.designsystem)
+    implementation(projects.core.ui)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
