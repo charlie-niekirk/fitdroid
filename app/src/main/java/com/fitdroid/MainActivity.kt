@@ -23,8 +23,10 @@ import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 @ActivityKey
 @Inject
 class MainActivity(private val metroVmf: MetroViewModelFactory) : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
             FitdroidTheme {
