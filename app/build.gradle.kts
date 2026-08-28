@@ -29,6 +29,7 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
+    implementation(libs.metrox.android)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)
 
