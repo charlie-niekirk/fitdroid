@@ -11,6 +11,7 @@ android {
         applicationId = "com.fitdroid"
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.fitdroid"
     }
 
     buildTypes {
@@ -29,6 +30,10 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
+    implementation(projects.core.health)
+    implementation(projects.core.database)
+    implementation(projects.core.auth)
+    implementation(projects.core.network)
     implementation(libs.metrox.android)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)
