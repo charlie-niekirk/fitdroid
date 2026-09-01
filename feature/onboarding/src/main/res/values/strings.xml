@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_onboarding_app_name">Fitdroid</string>
+    <string name="feature_onboarding_tagline">Sleep, readiness and activity from your Pixel Watch — stored on this phone.</string>
+
+    <string name="feature_onboarding_unavailable_title">Health Connect isn\'t available</string>
+    <string name="feature_onboarding_unavailable_body">Fitdroid reads sleep and fitness data through Health Connect. This device doesn\'t support it, so the app can\'t continue.</string>
+
+    <string name="feature_onboarding_update_title">Update Health Connect</string>
+    <string name="feature_onboarding_update_body">Health Connect needs an update before Fitdroid can read your Pixel Watch data.</string>
+    <string name="feature_onboarding_update_action">Update Health Connect</string>
+
+    <string name="feature_onboarding_permissions_title">Allow Health Connect access</string>
+    <string name="feature_onboarding_permissions_body">Fitdroid mirrors sleep sessions, heart rate, steps, workouts, calories and distance into a local database so it can score your nights and days. Nothing is written back to Health Connect.</string>
+    <string name="feature_onboarding_permissions_history">We also ask for history and background read access so scores can use more than the last 30 days and stay up to date overnight.</string>
+    <string name="feature_onboarding_permissions_denied">Health Connect access is required. You can change this any time in Health Connect settings.</string>
+    <string name="feature_onboarding_permissions_sleep">Sleep sessions and stages</string>
+    <string name="feature_onboarding_permissions_heart_rate">Heart rate and resting heart rate</string>
+    <string name="feature_onboarding_permissions_activity">Steps, workouts, calories and distance</string>
+    <string name="feature_onboarding_permissions_action">Continue with Health Connect</string>
+    <string name="feature_onboarding_privacy_policy">Privacy policy</string>
+    <string name="feature_onboarding_open_settings">Open Health Connect settings</string>
+
+    <string name="feature_onboarding_google_health_title">Link Google Health (optional)</string>
+    <string name="feature_onboarding_google_health_body">Health Connect covers sleep structure and activity. Linking Google Health adds HRV, SpO2, respiratory rate and skin temperature so readiness can use the full model. You can skip this and still use Fitdroid.</string>
+    <string name="feature_onboarding_google_health_action">Link Google Health</string>
+    <string name="feature_onboarding_google_health_skip">Skip for now</string>
+    <string name="feature_onboarding_google_health_linking">Waiting for Google sign-in…</string>
+
+    <string name="feature_onboarding_ready_title">You\'re ready</string>
+    <string name="feature_onboarding_ready_body">Fitdroid will sync from Health Connect and keep scores on this device. You can change access later in Settings.</string>
+    <string name="feature_onboarding_ready_google_linked">Google Health is linked. Physiological metrics will be included when they\'re available.</string>
+    <string name="feature_onboarding_continue">Continue</string>
+
+    <string name="feature_onboarding_privacy_title">Privacy policy</string>
+    <string name="feature_onboarding_privacy_intro">Fitdroid is a sleep and fitness companion that reads data you already collect with a Pixel Watch and the Google Health app. This policy explains what we access and how it is used.</string>
+    <string name="feature_onboarding_privacy_health_connect_title">Health Connect</string>
+    <string name="feature_onboarding_privacy_health_connect_body">We request read access to sleep sessions, heart rate, resting heart rate, steps, exercise sessions, total calories burned and distance. If the platform supports it, we also request history and background read access so overnight sync can keep a local mirror. We never write, update or delete records in Health Connect.</string>
+    <string name="feature_onboarding_privacy_google_health_title">Google Health (optional)</string>
+    <string name="feature_onboarding_privacy_google_health_body">If you choose to link a Google Health account, we request read-only Google Health scopes for sleep, health metrics and activity. That cloud data fills in HRV, oxygen saturation, respiratory rate and skin temperature that Health Connect does not expose. Linking is optional; the app works on Health Connect alone.</string>
+    <string name="feature_onboarding_privacy_storage_title">Storage and sharing</string>
+    <string name="feature_onboarding_privacy_storage_body">Copied records and computed scores stay in a local database on this device. Fitdroid does not sell health data, does not show ads against it, and does not upload it to a Fitdroid server in this version of the app.</string>
+    <string name="feature_onboarding_privacy_control_title">Your control</string>
+    <string name="feature_onboarding_privacy_control_body">You can revoke Health Connect permissions in system settings and unlink Google Health from Fitdroid. Revoking access stops new reads; data already stored on the device remains until you clear app storage.</string>
+    <string name="feature_onboarding_back">Back</string>
+</resources>

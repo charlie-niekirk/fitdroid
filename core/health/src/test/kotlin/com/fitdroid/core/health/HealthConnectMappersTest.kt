@@ -52,3 +52,12 @@ class HeartRateDownsamplerTest {
         assertTrue(result[2].resolutionSeconds >= 60)
     }
 }
+
+class HealthConnectPermissionsTest {
+    @Test
+    fun hasEssentialAccess_requiresEveryRecordReadPermission() {
+        val granted = HealthConnectPermissions.recordReadPermissions
+        assertTrue(HealthConnectPermissions.hasEssentialAccess(granted))
+        assertTrue(!HealthConnectPermissions.hasEssentialAccess(granted.drop(1).toSet()))
+    }
+}

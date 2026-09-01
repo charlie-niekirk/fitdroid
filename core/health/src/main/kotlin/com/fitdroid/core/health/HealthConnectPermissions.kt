@@ -48,4 +48,7 @@ object HealthConnectPermissions {
         }
         return permissions
     }
+
+    fun hasEssentialAccess(granted: Set<String>): Boolean =
+        granted.containsAll(recordReadPermissions)
 }
