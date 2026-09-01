@@ -1,5 +1,6 @@
 package com.fitdroid.core.network.model
 
+import java.time.LocalDate
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -9,7 +10,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonPrimitive
-import java.time.LocalDate
 
 @Serializable
 data class IdentityResponse(

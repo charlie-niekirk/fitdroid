@@ -8,8 +8,8 @@ import androidx.room.Transaction
 import com.fitdroid.core.database.entity.SleepSessionEntity
 import com.fitdroid.core.database.entity.SleepSessionWithStages
 import com.fitdroid.core.database.entity.SleepStageEntity
-import kotlinx.coroutines.flow.Flow
 import java.time.Instant
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SleepSessionDao {

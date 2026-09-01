@@ -5,11 +5,11 @@ import com.fitdroid.core.common.result.Result
 import com.fitdroid.core.network.model.DataPoint
 import com.fitdroid.core.network.model.DataPointsResponse
 import com.fitdroid.core.network.model.IdentityResponse
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class GoogleHealthClientImplTest {
     @Test

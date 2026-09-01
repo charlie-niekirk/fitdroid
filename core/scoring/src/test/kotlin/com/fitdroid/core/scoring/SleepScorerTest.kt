@@ -3,14 +3,14 @@ package com.fitdroid.core.scoring
 import com.fitdroid.core.model.SleepSession
 import com.fitdroid.core.model.SleepStage
 import com.fitdroid.core.model.SleepStageType
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class SleepScorerTest {
     private val zone = ZoneOffset.UTC
@@ -77,7 +77,11 @@ class SleepScorerTest {
             end = end,
             stages = listOf(
                 SleepStage(SleepStageType.Awake, start, start.plus(Duration.ofMinutes(20))),
-                SleepStage(SleepStageType.Light, start.plus(Duration.ofMinutes(20)), Instant.parse("2026-08-28T02:00:00Z")),
+                SleepStage(
+                    SleepStageType.Light,
+                    start.plus(Duration.ofMinutes(20)),
+                    Instant.parse("2026-08-28T02:00:00Z"),
+                ),
                 SleepStage(
                     SleepStageType.Awake,
                     Instant.parse("2026-08-28T02:00:00Z"),

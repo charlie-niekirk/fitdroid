@@ -38,11 +38,15 @@ internal fun sleepStageType(hcStage: Int): SleepStageType =
         SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED,
         SleepSessionRecord.STAGE_TYPE_OUT_OF_BED,
         -> SleepStageType.Awake
+
         SleepSessionRecord.STAGE_TYPE_LIGHT,
         SleepSessionRecord.STAGE_TYPE_SLEEPING,
         -> SleepStageType.Light
+
         SleepSessionRecord.STAGE_TYPE_DEEP -> SleepStageType.Deep
+
         SleepSessionRecord.STAGE_TYPE_REM -> SleepStageType.Rem
+
         else -> SleepStageType.Unknown
     }
 

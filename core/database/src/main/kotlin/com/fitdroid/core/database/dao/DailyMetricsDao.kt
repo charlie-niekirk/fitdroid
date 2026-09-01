@@ -7,8 +7,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.fitdroid.core.database.entity.DailyMetricsEntity
-import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DailyMetricsDao {

@@ -11,7 +11,9 @@ interface HealthConnectClientProvider {
 internal fun sdkStatusToAvailability(status: Int): HealthConnectAvailability =
     when (status) {
         HealthConnectClient.SDK_AVAILABLE -> HealthConnectAvailability.Available
+
         HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED ->
             HealthConnectAvailability.UpdateRequired
+
         else -> HealthConnectAvailability.Unavailable
     }

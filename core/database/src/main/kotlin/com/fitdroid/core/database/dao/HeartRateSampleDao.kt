@@ -5,8 +5,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.fitdroid.core.database.entity.HeartRateSampleEntity
-import kotlinx.coroutines.flow.Flow
 import java.time.Instant
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HeartRateSampleDao {

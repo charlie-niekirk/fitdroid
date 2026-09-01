@@ -1,0 +1,118 @@
+# Project overrides applied on top of detekt defaults (`buildUponDefaultConfig = true`).
+# Property names match Detekt 2.x. Compose-oriented defaults follow
+# https://detekt.dev/docs/introduction/compose/
+
+complexity:
+  LongParameterList:
+    allowedFunctionParameters: 12
+    allowedConstructorParameters: 12
+    ignoreDefaultParameters: true
+  LongMethod:
+    ignoreAnnotated:
+      - Composable
+  CyclomaticComplexMethod:
+    ignoreSimpleWhenEntries: true
+    ignoreAnnotated:
+      - Composable
+  TooManyFunctions:
+    ignoreAnnotatedFunctions:
+      - Preview
+    allowedFunctionsPerFile: 20
+    allowedFunctionsPerClass: 20
+    allowedFunctionsPerInterface: 20
+    allowedFunctionsPerObject: 20
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated:
+      - Composable
+      - Preview
+  MatchingDeclarationName:
+    active: false
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][_A-Za-z0-9]*'
+
+style:
+  MagicNumber:
+    active: false
+  UnusedPrivateFunction:
+    ignoreAnnotated:
+      - Preview
+      - Composable
+  UnusedPrivateProperty:
+    ignoreAnnotated:
+      - Preview
+  MaxLineLength:
+    maxLineLength: 120
+    excludeCommentStatements: true
+    excludes:
+      - '**/test/**'
+      - '**/androidTest/**'
+  ReturnCount:
+    max: 6
+    excludeGuardClauses: true
+  ForbiddenComment:
+    active: false
+  WildcardImport:
+    active: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+    allowedExceptionNameRegex: '_|(ignore|expected|error).*'
+
+# Jetpack Compose rules from io.nlopez.compose.rules
+Compose:
+  ComposableAnnotationNaming:
+    active: true
+  ComposableNaming:
+    active: true
+  ComposableParamOrder:
+    active: true
+  CompositionLocalAllowlist:
+    active: true
+  CompositionLocalNaming:
+    active: true
+  ContentEmitterReturningValues:
+    active: true
+  ContentSlotReused:
+    active: true
+  ContentTrailingLambda:
+    active: true
+  DefaultsVisibility:
+    active: true
+  ModifierClickableOrder:
+    active: true
+  ModifierComposed:
+    active: true
+  ModifierMissing:
+    active: true
+  ModifierNaming:
+    active: true
+  ModifierNotUsedAtRoot:
+    active: true
+  ModifierReused:
+    active: true
+  ModifierWithoutDefault:
+    active: true
+  MultipleEmitters:
+    active: true
+  MutableParams:
+    active: true
+  MutableStateParam:
+    active: true
+  ParameterNaming:
+    active: true
+  PreviewAnnotationNaming:
+    active: true
+  PreviewPublic:
+    active: true
+  RememberMissing:
+    active: true
+  UnstableCollections:
+    active: false
+  # Metro provides ViewModels, not Hilt.
+  ViewModelInjection:
+    active: false
+  ViewModelForwarding:
+    active: true

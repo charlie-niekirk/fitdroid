@@ -12,6 +12,7 @@ import com.fitdroid.core.designsystem.theme.FitdroidTheme
 import com.fitdroid.core.ui.metroViewModel
 
 @Composable
+@Suppress("UnusedParameter")
 fun MainScreen(
     onItemClick: (NavKey) -> Unit,
     modifier: Modifier = Modifier,
@@ -20,7 +21,9 @@ fun MainScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     when (val uiState = state) {
         MainScreenUiState.Loading -> Unit
+
         is MainScreenUiState.Success -> MainScreen(data = uiState.data, modifier = modifier)
+
         is MainScreenUiState.Error -> {
             Text("Error loading data: ${uiState.throwable.message}")
         }
@@ -39,12 +42,12 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun MainScreenPreview() {
+private fun MainScreenPreview() {
     FitdroidTheme { MainScreen(listOf("Android")) }
 }
 
 @Preview(showBackground = true, widthDp = 340)
 @Composable
-fun MainScreenPortraitPreview() {
+private fun MainScreenPortraitPreview() {
     FitdroidTheme { MainScreen(listOf("Android")) }
 }
