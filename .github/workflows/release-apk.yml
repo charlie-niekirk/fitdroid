@@ -1,0 +1,113 @@
+name: Release APK
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+
+jobs:
+  release-apk:
+    name: Release APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Android build
+        uses: ./.github/actions/setup-android
+
+      - name: Assemble signed release APK
+        run: ./gradlew :app:assembleRelease --stacktrace
+        env:
+          CI: "true"
+
+      - name: Locate release APK
+        id: apk
+        run: |
+          set -euo pipefail
+          apk="$(find app/build/outputs/apk/release -name '*.apk' -not -name '*unsigned*' | head -n 1)"
+          if [[ -z "$apk" ]]; then
+            echo "No signed release APK found under app/build/outputs/apk/release" >&2
+            ls -la app/build/outputs/apk/release || true
+            exit 1
+          fi
+          echo "path=$apk" >> "$GITHUB_OUTPUT"
+          echo "Found $apk"
+          ls -lh "$apk"
+
+      - name: Upload release APK
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: ${{ steps.apk.outputs.path }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Comment APK download link
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        env:
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        with:
+          script: |
+            const marker = '<!-- fitdroid-release-apk -->';
+            const artifactUrl = process.env.ARTIFACT_URL;
+            const artifactId = process.env.ARTIFACT_ID;
+            const sha = process.env.HEAD_SHA;
+            const shortSha = sha.slice(0, 7);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const nightlyUrl = `https://nightly.link/${context.repo.owner}/${context.repo.repo}/actions/artifacts/${artifactId}.zip`;
+
+            const body = [
+              marker,
+              '## Release APK',
+              '',
+              'A signed release build is ready for this pull request.',
+              '',
+              `- **Download:** [app-release.apk](${artifactUrl})`,
+              `- **Public zip mirror:** [nightly.link](${nightlyUrl})`,
+              `- **Commit:** \`${shortSha}\``,
+              `- **Workflow run:** [logs](${runUrl})`,
+              '',
+              'The APK is signed with the Android debug keystore so it can be installed on a device or emulator. GitHub may require you to be signed in to download the Actions artifact. Re-running this workflow updates this comment with a new link.',
+              '',
+            ].join('\n');
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find((comment) =>
+              comment.user &&
+              comment.user.login === 'github-actions[bot]' &&
+              comment.body &&
+              comment.body.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

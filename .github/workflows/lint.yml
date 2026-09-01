@@ -1,0 +1,40 @@
+name: Lint
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Spotless, Detekt, KtLint
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Android build
+        uses: ./.github/actions/setup-android
+
+      - name: KtLint
+        run: ./gradlew spotlessKotlinCheck spotlessKotlinGradleCheck --stacktrace
+
+      - name: Spotless
+        run: ./gradlew spotlessCheck --stacktrace
+
+      - name: Detekt
+        run: ./gradlew detekt --stacktrace
+
+      - name: Upload Detekt reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-reports
+          path: "**/build/reports/detekt/**"
+          if-no-files-found: ignore
