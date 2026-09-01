@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.fitdroid.android.application)
     alias(libs.plugins.fitdroid.android.compose)
     alias(libs.plugins.fitdroid.metro)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
