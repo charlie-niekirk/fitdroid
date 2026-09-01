@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 data object Onboarding : NavKey
 
 @Serializable
-data object Main : NavKey
+data object Home : NavKey

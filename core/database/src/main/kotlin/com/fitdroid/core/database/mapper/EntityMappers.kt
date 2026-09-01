@@ -11,6 +11,7 @@ import com.fitdroid.core.database.entity.SyncStateEntity
 import com.fitdroid.core.model.ActivityScore
 import com.fitdroid.core.model.ActivityScoreBreakdown
 import com.fitdroid.core.model.DailyMetrics
+import com.fitdroid.core.model.DailyScores
 import com.fitdroid.core.model.ExerciseSession
 import com.fitdroid.core.model.HeartRateSample
 import com.fitdroid.core.model.ReadinessScore
@@ -177,6 +178,14 @@ fun ScoreEntity.toReadinessScore(): ReadinessScore? {
         usingDegradedModel = readinessDegraded,
     )
 }
+
+fun ScoreEntity.toDailyScores(): DailyScores =
+    DailyScores(
+        date = date,
+        sleep = toSleepScore(),
+        readiness = toReadinessScore(),
+        activity = toActivityScore(),
+    )
 
 fun ScoreEntity.toActivityScore(): ActivityScore? {
     val value = activityScore ?: return null

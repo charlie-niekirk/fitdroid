@@ -38,9 +38,13 @@ dependencies {
     implementation(projects.core.scoring)
     implementation(projects.core.sync)
     implementation(projects.feature.onboarding)
+    implementation(projects.feature.dashboard)
+    implementation(projects.feature.sleepScreen)
+    implementation(projects.feature.activityScreen)
     implementation(libs.metrox.android)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
