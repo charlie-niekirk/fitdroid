@@ -14,7 +14,12 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             apply(plugin = "com.android.library")
             extensions.configure<LibraryExtension> {
                 configureAndroidDefaults()
-                defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                defaultConfig {
+                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                    // AppAuth's manifest requires this placeholder. Application modules
+                    // override it; library androidTest APKs need a default to merge.
+                    manifestPlaceholders["appAuthRedirectScheme"] = "com.fitdroid"
+                }
                 testOptions.animationsDisabled = true
                 resourcePrefix = path
                     .split("""\W""".toRegex())
