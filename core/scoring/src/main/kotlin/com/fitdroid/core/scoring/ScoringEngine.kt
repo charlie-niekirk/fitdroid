@@ -1,21 +1,12 @@
 package com.fitdroid.core.scoring
 
-import com.fitdroid.core.model.ActivityScore
 import com.fitdroid.core.model.DailyMetrics
+import com.fitdroid.core.model.DailyScores
 import com.fitdroid.core.model.ExerciseSession
 import com.fitdroid.core.model.HeartRateSample
-import com.fitdroid.core.model.ReadinessScore
-import com.fitdroid.core.model.SleepScore
 import com.fitdroid.core.model.SleepSession
 import java.time.LocalDate
 import java.time.ZoneId
-
-data class DailyScores(
-    val date: LocalDate,
-    val sleep: SleepScore?,
-    val readiness: ReadinessScore?,
-    val activity: ActivityScore?,
-)
 
 class ScoringEngine(
     private val goals: ScoringGoals = ScoringGoals.Default,

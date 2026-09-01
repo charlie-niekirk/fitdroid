@@ -3,6 +3,7 @@ package com.fitdroid.core.health
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -93,7 +94,29 @@ internal fun exerciseTypeName(type: Int): String =
         else -> "unknown_$type"
     }
 
-internal fun StepsRecord.toPayload(): HealthRecordPayload.Steps =
+internal fun Record.toPayload(): HealthRecordPayload =
+    when (this) {
+        is SleepSessionRecord -> HealthRecordPayload.Sleep(toSleepSession())
+
+        is HeartRateRecord -> HealthRecordPayload.HeartRate(toHeartRateSamples())
+
+        is RestingHeartRateRecord -> HealthRecordPayload.RestingHeartRate(toRestingHeartRateSample())
+
+        is StepsRecord -> toStepsPayload()
+
+        is ExerciseSessionRecord -> HealthRecordPayload.Exercise(toExerciseSession())
+
+        is TotalCaloriesBurnedRecord -> toCaloriesPayload()
+
+        is DistanceRecord -> toDistancePayload()
+
+        else -> HealthRecordPayload.Unknown(
+            type = this::class.simpleName.orEmpty(),
+            hcRecordId = metadata.id,
+        )
+    }
+
+internal fun StepsRecord.toStepsPayload(): HealthRecordPayload.Steps =
     HealthRecordPayload.Steps(
         count = count,
         start = startTime,
@@ -101,7 +124,7 @@ internal fun StepsRecord.toPayload(): HealthRecordPayload.Steps =
         hcRecordId = metadata.id,
     )
 
-internal fun TotalCaloriesBurnedRecord.toPayload(): HealthRecordPayload.Calories =
+internal fun TotalCaloriesBurnedRecord.toCaloriesPayload(): HealthRecordPayload.Calories =
     HealthRecordPayload.Calories(
         kcal = energy.inKilocalories,
         start = startTime,
@@ -109,7 +132,7 @@ internal fun TotalCaloriesBurnedRecord.toPayload(): HealthRecordPayload.Calories
         hcRecordId = metadata.id,
     )
 
-internal fun DistanceRecord.toPayload(): HealthRecordPayload.Distance =
+internal fun DistanceRecord.toDistancePayload(): HealthRecordPayload.Distance =
     HealthRecordPayload.Distance(
         meters = distance.inMeters,
         start = startTime,

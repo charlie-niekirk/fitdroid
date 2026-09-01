@@ -1,10 +1,10 @@
 package com.fitdroid.core.sync
 
 import com.fitdroid.core.model.DailyMetrics
+import com.fitdroid.core.model.DailyScores
 import com.fitdroid.core.model.ExerciseSession
 import com.fitdroid.core.model.HeartRateSample
 import com.fitdroid.core.model.SleepSession
-import com.fitdroid.core.scoring.DailyScores
 import java.time.Instant
 import java.time.LocalDate
 

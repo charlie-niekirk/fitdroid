@@ -11,10 +11,10 @@ import com.fitdroid.core.database.mapper.stageEntities
 import com.fitdroid.core.database.mapper.toEntity
 import com.fitdroid.core.database.mapper.toModel
 import com.fitdroid.core.model.DailyMetrics
+import com.fitdroid.core.model.DailyScores
 import com.fitdroid.core.model.ExerciseSession
 import com.fitdroid.core.model.HeartRateSample
 import com.fitdroid.core.model.SleepSession
-import com.fitdroid.core.scoring.DailyScores
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject

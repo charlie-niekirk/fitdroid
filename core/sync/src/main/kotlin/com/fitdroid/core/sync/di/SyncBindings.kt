@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.work.WorkerParameters
 import com.fitdroid.core.scoring.ScoringEngine
 import com.fitdroid.core.sync.FitdroidSynchronizer
+import com.fitdroid.core.sync.ImmediateSync
+import com.fitdroid.core.sync.SyncScheduler
 import com.fitdroid.core.sync.SyncWorker
 import com.fitdroid.core.ui.di.MetroWorkerFactory
 import com.fitdroid.core.ui.di.WorkerKey
@@ -21,6 +23,9 @@ object SyncBindings {
     @Provides
     @SingleIn(AppScope::class)
     fun scoringEngine(zoneId: ZoneId): ScoringEngine = ScoringEngine(zoneId = zoneId)
+
+    @Provides
+    fun immediateSync(scheduler: SyncScheduler): ImmediateSync = ImmediateSync(scheduler::requestImmediate)
 
     @Provides
     @IntoMap

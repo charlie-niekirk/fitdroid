@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_dashboard_title">Today</string>
+    <string name="feature_dashboard_sleep">Sleep</string>
+    <string name="feature_dashboard_readiness">Readiness</string>
+    <string name="feature_dashboard_activity">Activity</string>
+    <string name="feature_dashboard_readiness_degraded">Readiness is using resting heart rate and sleep only until Google Health data is available.</string>
+    <string name="feature_dashboard_sleep_trend">Sleep trend</string>
+    <string name="feature_dashboard_steps">Steps</string>
+    <string name="feature_dashboard_steps_value">%1$d / %2$d</string>
+    <string name="feature_dashboard_empty_title">No scores yet</string>
+    <string name="feature_dashboard_empty_body">Pull to refresh after your Pixel Watch has synced a night of sleep through Health Connect.</string>
+</resources>

@@ -22,7 +22,7 @@ import com.fitdroid.core.designsystem.theme.FitdroidTheme
 @Composable
 fun ScoreRing(
     score: Int,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.size(120.dp),
     maxScore: Int = 100,
     label: String? = null,
     color: Color = MaterialTheme.colorScheme.primary,
@@ -32,7 +32,7 @@ fun ScoreRing(
     val clamped = score.coerceIn(0, maxScore)
     val sweep = 360f * (clamped / maxScore.toFloat())
 
-    Box(modifier = modifier.size(120.dp), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.matchParentSize()) {
             val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
             val inset = stroke.width / 2

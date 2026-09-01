@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_sleep_screen_title">Sleep</string>
+    <string name="feature_sleep_screen_score_label">Sleep</string>
+    <string name="feature_sleep_screen_previous">Previous</string>
+    <string name="feature_sleep_screen_next">Next</string>
+    <string name="feature_sleep_screen_empty">No sleep recorded for this night.</string>
+    <string name="feature_sleep_screen_window">%1$s – %2$s</string>
+    <string name="feature_sleep_screen_asleep_in_bed">%1$s asleep of %2$s in bed</string>
+    <string name="feature_sleep_screen_deep">Deep</string>
+    <string name="feature_sleep_screen_rem">REM</string>
+    <string name="feature_sleep_screen_light">Light</string>
+    <string name="feature_sleep_screen_awake">Awake</string>
+    <string name="feature_sleep_screen_breakdown">Why this score</string>
+    <string name="feature_sleep_screen_component_duration">Duration</string>
+    <string name="feature_sleep_screen_component_restorative">Restorative</string>
+    <string name="feature_sleep_screen_component_efficiency">Efficiency</string>
+    <string name="feature_sleep_screen_component_disturbances">Disturbances</string>
+    <string name="feature_sleep_screen_component_consistency">Consistency</string>
+    <string name="feature_sleep_screen_trend">%1$d vs 14-day avg</string>
+</resources>
