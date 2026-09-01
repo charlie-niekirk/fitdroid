@@ -97,12 +97,19 @@ internal fun exerciseTypeName(type: Int): String =
 internal fun Record.toPayload(): HealthRecordPayload =
     when (this) {
         is SleepSessionRecord -> HealthRecordPayload.Sleep(toSleepSession())
+
         is HeartRateRecord -> HealthRecordPayload.HeartRate(toHeartRateSamples())
+
         is RestingHeartRateRecord -> HealthRecordPayload.RestingHeartRate(toRestingHeartRateSample())
+
         is StepsRecord -> toStepsPayload()
+
         is ExerciseSessionRecord -> HealthRecordPayload.Exercise(toExerciseSession())
+
         is TotalCaloriesBurnedRecord -> toCaloriesPayload()
+
         is DistanceRecord -> toDistancePayload()
+
         else -> HealthRecordPayload.Unknown(
             type = this::class.simpleName.orEmpty(),
             hcRecordId = metadata.id,
