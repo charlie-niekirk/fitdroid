@@ -8,9 +8,9 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import retrofit2.HttpException
 import java.time.Instant
 import java.time.LocalDate
+import retrofit2.HttpException
 
 interface GoogleHealthClient {
     suspend fun verifyLinkage(): Result<IdentityResponse>

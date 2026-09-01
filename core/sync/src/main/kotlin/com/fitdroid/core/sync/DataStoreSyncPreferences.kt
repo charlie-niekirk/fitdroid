@@ -12,8 +12,8 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import kotlinx.coroutines.flow.first
 import java.time.LocalDate
+import kotlinx.coroutines.flow.first
 
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)

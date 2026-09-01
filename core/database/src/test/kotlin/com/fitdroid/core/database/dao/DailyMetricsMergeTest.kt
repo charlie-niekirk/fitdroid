@@ -1,9 +1,9 @@
 package com.fitdroid.core.database.dao
 
 import com.fitdroid.core.database.entity.DailyMetricsEntity
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 class DailyMetricsMergeTest {
     @Test

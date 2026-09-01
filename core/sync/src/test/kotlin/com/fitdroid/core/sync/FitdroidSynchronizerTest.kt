@@ -1,5 +1,6 @@
 package com.fitdroid.core.sync
 
+import com.fitdroid.core.common.result.Result
 import com.fitdroid.core.model.DailyMetrics
 import com.fitdroid.core.model.SleepSession
 import com.fitdroid.core.model.SleepStage
@@ -10,16 +11,15 @@ import com.fitdroid.core.network.HealthDataType
 import com.fitdroid.core.network.model.DataPoint
 import com.fitdroid.core.network.model.IdentityResponse
 import com.fitdroid.core.scoring.ScoringEngine
-import com.fitdroid.core.common.result.Result
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class FitdroidSynchronizerTest {
     private val zone = ZoneOffset.UTC

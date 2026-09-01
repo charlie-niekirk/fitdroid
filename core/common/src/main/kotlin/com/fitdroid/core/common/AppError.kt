@@ -30,6 +30,7 @@ sealed interface AppError {
                 message = throwable.message ?: "Network request failed",
                 cause = throwable,
             )
+
             else -> Unknown(
                 message = throwable.message ?: "Something went wrong",
                 cause = throwable,

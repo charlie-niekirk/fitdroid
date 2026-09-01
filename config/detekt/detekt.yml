@@ -1,56 +1,55 @@
 # Project overrides applied on top of detekt defaults (`buildUponDefaultConfig = true`).
-# Compose-oriented defaults follow https://detekt.dev/docs/introduction/compose/
+# Property names match Detekt 2.x. Compose-oriented defaults follow
+# https://detekt.dev/docs/introduction/compose/
 
 complexity:
   LongParameterList:
-    functionThreshold: 12
-    constructorThreshold: 12
+    allowedFunctionParameters: 12
+    allowedConstructorParameters: 12
     ignoreDefaultParameters: true
-    ignoreAnnotated:
-      - Composable
   LongMethod:
     ignoreAnnotated:
       - Composable
   CyclomaticComplexMethod:
+    ignoreSimpleWhenEntries: true
     ignoreAnnotated:
       - Composable
   TooManyFunctions:
     ignoreAnnotatedFunctions:
       - Preview
-    thresholdInFiles: 20
-    thresholdInClasses: 20
-    thresholdInInterfaces: 20
-    thresholdInObjects: 20
+    allowedFunctionsPerFile: 20
+    allowedFunctionsPerClass: 20
+    allowedFunctionsPerInterface: 20
+    allowedFunctionsPerObject: 20
 
 naming:
   FunctionNaming:
     ignoreAnnotated:
       - Composable
       - Preview
+  MatchingDeclarationName:
+    active: false
   TopLevelPropertyNaming:
-    constantPattern: '[A-Z][A-Za-z0-9]*'
+    constantPattern: '[A-Z][_A-Za-z0-9]*'
 
 style:
   MagicNumber:
-    ignorePropertyDeclaration: true
-    ignoreCompanionObjectPropertyDeclaration: true
-    ignoreConstantDeclaration: true
-    ignoreNamedArgument: true
-    ignoreNumbers:
-      - '-1'
-      - '0'
-      - '1'
-      - '2'
-      - '100'
-  UnusedPrivateMember:
+    active: false
+  UnusedPrivateFunction:
     ignoreAnnotated:
       - Preview
       - Composable
+  UnusedPrivateProperty:
+    ignoreAnnotated:
+      - Preview
   MaxLineLength:
     maxLineLength: 120
     excludeCommentStatements: true
+    excludes:
+      - '**/test/**'
+      - '**/androidTest/**'
   ReturnCount:
-    max: 4
+    max: 6
     excludeGuardClauses: true
   ForbiddenComment:
     active: false

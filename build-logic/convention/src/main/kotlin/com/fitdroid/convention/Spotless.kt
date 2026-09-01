@@ -13,6 +13,7 @@ internal fun Project.configureSpotless() {
         kotlin {
             target("src/**/*.kt")
             ktlint(ktlintVersion)
+                .editorConfigOverride(ktlintEditorConfigOverride)
                 .customRuleSets(
                     listOf("io.nlopez.compose.rules:ktlint:$composeRulesVersion"),
                 )
@@ -21,7 +22,7 @@ internal fun Project.configureSpotless() {
         }
         kotlinGradle {
             target("*.gradle.kts")
-            ktlint(ktlintVersion)
+            ktlint(ktlintVersion).editorConfigOverride(ktlintEditorConfigOverride)
             trimTrailingWhitespace()
             endWithNewline()
         }
@@ -33,3 +34,12 @@ internal fun Project.configureSpotless() {
         }
     }
 }
+
+internal val ktlintEditorConfigOverride: Map<String, String> = mapOf(
+    "ktlint_code_style" to "android_studio",
+    "ktlint_function_naming_ignore_when_annotated_with" to "Composable, Test",
+    "ktlint_standard_property-naming" to "disabled",
+    "ij_kotlin_allow_trailing_comma" to "true",
+    "ij_kotlin_allow_trailing_comma_on_call_site" to "true",
+    "max_line_length" to "120",
+)

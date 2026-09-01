@@ -6,14 +6,14 @@ import com.fitdroid.core.health.HealthRecordPayload
 import com.fitdroid.core.model.SleepSession
 import com.fitdroid.core.model.SleepStage
 import com.fitdroid.core.model.SleepStageType
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneOffset
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneOffset
 
 class HealthConnectSyncPassTest {
     private val zone = ZoneOffset.UTC

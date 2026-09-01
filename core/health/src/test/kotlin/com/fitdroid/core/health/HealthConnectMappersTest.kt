@@ -4,11 +4,11 @@ import androidx.health.connect.client.records.SleepSessionRecord
 import com.fitdroid.core.model.HeartRateSample
 import com.fitdroid.core.model.SleepSession
 import com.fitdroid.core.model.SleepStageType
+import java.time.Duration
+import java.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.Duration
-import java.time.Instant
 
 class HealthConnectMappersTest {
     @Test
