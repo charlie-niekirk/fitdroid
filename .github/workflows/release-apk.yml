@@ -25,7 +25,7 @@ jobs:
         uses: ./.github/actions/setup-android
 
       - name: Assemble signed release APK
-        run: ./gradlew :app:assembleRelease --stacktrace
+        run: .github/scripts/gradle-retry.sh :app:assembleRelease --stacktrace
         env:
           CI: "true"
 

@@ -23,13 +23,13 @@ jobs:
         uses: ./.github/actions/setup-android
 
       - name: KtLint
-        run: ./gradlew spotlessKotlinCheck spotlessKotlinGradleCheck --stacktrace
+        run: .github/scripts/gradle-retry.sh spotlessKotlinCheck spotlessKotlinGradleCheck --stacktrace
 
       - name: Spotless
-        run: ./gradlew spotlessCheck --stacktrace
+        run: .github/scripts/gradle-retry.sh spotlessCheck --stacktrace
 
       - name: Detekt
-        run: ./gradlew detekt --stacktrace
+        run: .github/scripts/gradle-retry.sh detekt --stacktrace
 
       - name: Upload Detekt reports
         if: failure()

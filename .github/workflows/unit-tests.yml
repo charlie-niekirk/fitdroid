@@ -23,7 +23,7 @@ jobs:
         uses: ./.github/actions/setup-android
 
       - name: Run unit tests
-        run: ./gradlew test --stacktrace
+        run: .github/scripts/gradle-retry.sh test --stacktrace
 
       - name: Upload unit test reports
         if: failure()
