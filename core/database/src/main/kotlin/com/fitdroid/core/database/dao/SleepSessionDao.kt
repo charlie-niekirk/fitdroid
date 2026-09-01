@@ -22,6 +22,10 @@ interface SleepSessionDao {
     fun observeInRange(start: Instant, end: Instant): Flow<List<SleepSessionWithStages>>
 
     @Transaction
+    @Query("SELECT * FROM sleep_sessions WHERE start >= :start AND start < :end ORDER BY start DESC")
+    suspend fun getInRange(start: Instant, end: Instant): List<SleepSessionWithStages>
+
+    @Transaction
     @Query("SELECT * FROM sleep_sessions WHERE id = :id")
     suspend fun getById(id: String): SleepSessionWithStages?
 
@@ -41,7 +45,10 @@ interface SleepSessionDao {
     suspend fun deleteById(id: String)
 
     @Query("DELETE FROM sleep_sessions WHERE hcRecordId = :hcRecordId")
-    suspend fun deleteByHcRecordId(hcRecordId: String)
+    suspend fun deleteByHcRecordId(hcRecordId: String): Int
+
+    @Query("DELETE FROM sleep_sessions WHERE start >= :start AND start < :end")
+    suspend fun deleteInRange(start: Instant, end: Instant)
 
     @Transaction
     suspend fun upsert(session: SleepSessionEntity, stages: List<SleepStageEntity>) {

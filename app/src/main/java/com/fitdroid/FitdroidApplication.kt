@@ -12,6 +12,11 @@ class FitdroidApplication : Application(), MetroApplication, Configuration.Provi
         createGraphFactory<AppGraph.Factory>().create(this)
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        appGraph.syncScheduler.schedulePeriodic()
+    }
+
     override val appComponentProviders: MetroAppComponentProviders
         get() = appGraph
 

@@ -16,6 +16,9 @@ interface ExerciseSessionDao {
     @Query("SELECT * FROM exercise_sessions WHERE start >= :start AND start < :end ORDER BY start DESC")
     fun observeInRange(start: Instant, end: Instant): Flow<List<ExerciseSessionEntity>>
 
+    @Query("SELECT * FROM exercise_sessions WHERE start >= :start AND start < :end ORDER BY start DESC")
+    suspend fun getInRange(start: Instant, end: Instant): List<ExerciseSessionEntity>
+
     @Query("SELECT * FROM exercise_sessions WHERE id = :id")
     suspend fun getById(id: String): ExerciseSessionEntity?
 
@@ -29,5 +32,8 @@ interface ExerciseSessionDao {
     suspend fun deleteById(id: String)
 
     @Query("DELETE FROM exercise_sessions WHERE hcRecordId = :hcRecordId")
-    suspend fun deleteByHcRecordId(hcRecordId: String)
+    suspend fun deleteByHcRecordId(hcRecordId: String): Int
+
+    @Query("DELETE FROM exercise_sessions WHERE start >= :start AND start < :end")
+    suspend fun deleteInRange(start: Instant, end: Instant)
 }

@@ -18,6 +18,9 @@ interface DailyMetricsDao {
     @Query("SELECT * FROM daily_metrics WHERE date >= :start AND date < :end ORDER BY date DESC")
     fun observeInRange(start: LocalDate, end: LocalDate): Flow<List<DailyMetricsEntity>>
 
+    @Query("SELECT * FROM daily_metrics WHERE date >= :start AND date < :end ORDER BY date DESC")
+    suspend fun getInRange(start: LocalDate, end: LocalDate): List<DailyMetricsEntity>
+
     @Query("SELECT * FROM daily_metrics WHERE date = :date")
     suspend fun get(date: LocalDate): DailyMetricsEntity?
 

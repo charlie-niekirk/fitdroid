@@ -27,7 +27,7 @@ interface HeartRateSampleDao {
     suspend fun deleteInRange(start: Instant, end: Instant)
 
     @Query("DELETE FROM heart_rate_samples WHERE hcRecordId = :hcRecordId")
-    suspend fun deleteByHcRecordId(hcRecordId: String)
+    suspend fun deleteByHcRecordId(hcRecordId: String): Int
 
     @Query("DELETE FROM heart_rate_samples WHERE sleepSessionId = :sleepSessionId")
     suspend fun deleteBySleepSessionId(sleepSessionId: String)

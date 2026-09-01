@@ -35,6 +35,8 @@ dependencies {
     implementation(projects.core.database)
     implementation(projects.core.auth)
     implementation(projects.core.network)
+    implementation(projects.core.scoring)
+    implementation(projects.core.sync)
     implementation(libs.metrox.android)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)

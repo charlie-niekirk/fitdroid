@@ -16,6 +16,9 @@ interface ScoreDao {
     @Query("SELECT * FROM scores WHERE date >= :start AND date < :end ORDER BY date DESC")
     fun observeInRange(start: LocalDate, end: LocalDate): Flow<List<ScoreEntity>>
 
+    @Query("SELECT * FROM scores WHERE date >= :start AND date < :end ORDER BY date DESC")
+    suspend fun getInRange(start: LocalDate, end: LocalDate): List<ScoreEntity>
+
     @Query("SELECT * FROM scores WHERE date = :date")
     suspend fun get(date: LocalDate): ScoreEntity?
 
