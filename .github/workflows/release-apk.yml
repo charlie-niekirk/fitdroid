@@ -1,0 +1,142 @@
+name: Release APK
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  actions: read
+  pull-requests: write
+
+jobs:
+  release-apk:
+    name: Release APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Android build
+        uses: ./.github/actions/setup-android
+
+      - name: Assemble signed release APK
+        run: .github/scripts/gradle-retry.sh :app:assembleRelease --stacktrace
+        env:
+          CI: "true"
+
+      - name: Locate release APK
+        id: apk
+        run: |
+          set -euo pipefail
+          apk="$(find app/build/outputs/apk/release -name '*.apk' -not -name '*unsigned*' | head -n 1)"
+          if [[ -z "$apk" ]]; then
+            echo "No signed release APK found under app/build/outputs/apk/release" >&2
+            ls -la app/build/outputs/apk/release || true
+            exit 1
+          fi
+          echo "path=$apk" >> "$GITHUB_OUTPUT"
+          echo "Found $apk"
+          ls -lh "$apk"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: ${{ steps.apk.outputs.path }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish APK as a release asset
+        id: publish
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          APK_PATH: ${{ steps.apk.outputs.path }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          tag="pr-${PR_NUMBER}-apk"
+          staged="${RUNNER_TEMP}/app-release.apk"
+          cp "$APK_PATH" "$staged"
+          notes="Signed release APK for pull request #${PR_NUMBER} (\`${HEAD_SHA:0:7}\`). Updated when the Release APK workflow re-runs."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" \
+              --title "PR #${PR_NUMBER} APK" \
+              --notes "$notes" \
+              --prerelease \
+              --latest=false \
+              --target "$HEAD_SHA"
+            gh release upload "$tag" "$staged" --clobber
+          else
+            gh release create "$tag" "$staged" \
+              --title "PR #${PR_NUMBER} APK" \
+              --notes "$notes" \
+              --prerelease \
+              --latest=false \
+              --target "$HEAD_SHA"
+          fi
+          url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${tag}/app-release.apk"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Published $url"
+
+      - name: Comment APK download link
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        env:
+          APK_URL: ${{ steps.publish.outputs.url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        with:
+          script: |
+            const marker = '<!-- fitdroid-release-apk -->';
+            const apkUrl = process.env.APK_URL;
+            const sha = process.env.HEAD_SHA;
+            const shortSha = sha.slice(0, 7);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const body = [
+              marker,
+              '## Release APK',
+              '',
+              'A signed release build is ready for this pull request.',
+              '',
+              `- **Download:** [app-release.apk](${apkUrl})`,
+              `- **Commit:** \`${shortSha}\``,
+              `- **Workflow run:** [logs](${runUrl})`,
+              '',
+              'The APK is signed with the Android debug keystore so it can be installed on a device or emulator. Re-running this workflow updates this comment with a new link.',
+              '',
+            ].join('\n');
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find((comment) =>
+              comment.user &&
+              comment.user.login === 'github-actions[bot]' &&
+              comment.body &&
+              comment.body.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

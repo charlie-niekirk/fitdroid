@@ -14,7 +14,19 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             apply(plugin = "com.android.application")
             extensions.configure<ApplicationExtension> {
                 configureAndroidDefaults()
+                defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                 testOptions.animationsDisabled = true
+                // GitHub Actions sets CI=true. Debug-sign release APKs there so they can be
+                // installed on a device or emulator without a production keystore.
+                val useCiReleaseSigning = providers.environmentVariable("CI")
+                    .map { it.equals("true", ignoreCase = true) }
+                    .orElse(false)
+                    .get()
+                if (useCiReleaseSigning) {
+                    buildTypes.named("release") {
+                        signingConfig = signingConfigs.getByName("debug")
+                    }
+                }
             }
             configureKotlinAndroid()
             configureSpotless()

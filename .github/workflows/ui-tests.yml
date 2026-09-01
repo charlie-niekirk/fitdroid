@@ -1,0 +1,97 @@
+name: UI tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+# Share a concurrency group for real UI-test runs and SkipUiTests label changes so
+# adding SkipUiTests cancels an in-progress run. Unrelated label events use a unique
+# group and do not cancel tests.
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{ github.event.pull_request.number }}-${{
+      (github.event.action == 'labeled' || github.event.action == 'unlabeled')
+      && github.event.label.name != 'SkipUiTests'
+      && github.run_id
+      || 'run'
+    }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write
+  pull-requests: read
+
+env:
+  SKIP_UI_TESTS: ${{ contains(github.event.pull_request.labels.*.name, 'SkipUiTests') }}
+
+jobs:
+  ui-tests:
+    name: UI tests
+    if: >
+      github.event.action != 'labeled' && github.event.action != 'unlabeled' ||
+      github.event.label.name == 'SkipUiTests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Skip UI tests
+        if: env.SKIP_UI_TESTS == 'true'
+        run: echo "SkipUiTests label is present; skipping UI tests."
+
+      - name: Checkout
+        if: env.SKIP_UI_TESTS != 'true'
+        uses: actions/checkout@v5
+
+      - name: Set up Android build
+        if: env.SKIP_UI_TESTS != 'true'
+        uses: ./.github/actions/setup-android
+
+      - name: Enable KVM
+        if: env.SKIP_UI_TESTS != 'true'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls /dev/kvm
+
+      - name: Watch for SkipUiTests label
+        if: env.SKIP_UI_TESTS != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x .github/scripts/watch-skip-ui-tests.sh
+          nohup bash .github/scripts/watch-skip-ui-tests.sh "${{ github.event.pull_request.number }}" \
+            > "${RUNNER_TEMP}/skip-ui-tests-watchdog.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/skip-ui-tests-watchdog.pid"
+
+      - name: Run UI tests
+        if: env.SKIP_UI_TESTS != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 6000M
+          heap-size: 600M
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: .github/scripts/gradle-retry.sh :app:connectedDebugAndroidTest --stacktrace
+
+      - name: Upload UI test reports
+        if: failure() && env.SKIP_UI_TESTS != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-reports
+          path: "**/build/reports/androidTests/**"
+          if-no-files-found: ignore
+
+      - name: Stop SkipUiTests watchdog
+        if: always() && env.SKIP_UI_TESTS != 'true'
+        run: |
+          if [[ -f "${RUNNER_TEMP}/skip-ui-tests-watchdog.pid" ]]; then
+            kill "$(cat "${RUNNER_TEMP}/skip-ui-tests-watchdog.pid")" 2>/dev/null || true
+          fi
+          if [[ -f "${RUNNER_TEMP}/skip-ui-tests-watchdog.log" ]]; then
+            echo "Watchdog log:"
+            cat "${RUNNER_TEMP}/skip-ui-tests-watchdog.log" || true
+          fi
