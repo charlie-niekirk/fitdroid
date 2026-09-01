@@ -44,7 +44,11 @@ class OnboardingViewModelTest {
         viewModel.test(this) {
             runOnCreate()
             expectState {
-                copy(isLoading = false, availability = HealthConnectAvailability.UpdateRequired, requestedPermissions = essential)
+                copy(
+                    isLoading = false,
+                    availability = HealthConnectAvailability.UpdateRequired,
+                    requestedPermissions = essential,
+                )
             }
             assertEquals(OnboardingStep.UpdateRequired, viewModel.container.stateFlow.value.step)
             cancelAndIgnoreRemainingItems()

@@ -1,11 +1,11 @@
 package com.fitdroid.core.scoring
 
 import com.fitdroid.core.model.DailyMetrics
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class ReadinessScorerTest {
     private val date = LocalDate.of(2026, 8, 28)

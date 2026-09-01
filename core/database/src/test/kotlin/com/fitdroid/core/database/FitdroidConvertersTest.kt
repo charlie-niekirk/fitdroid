@@ -1,11 +1,11 @@
 package com.fitdroid.core.database
 
 import com.fitdroid.core.model.SleepStageType
+import java.time.Instant
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.time.Instant
-import java.time.LocalDate
 
 class FitdroidConvertersTest {
     private val converters = FitdroidConverters()

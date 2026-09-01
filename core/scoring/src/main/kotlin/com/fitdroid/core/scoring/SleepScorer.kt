@@ -106,7 +106,9 @@ internal object SleepScorer {
         val stdDev = bedtimeStdDev(bedtimes) ?: return 70
         return when {
             stdDev <= ConsistencyNeutralMinutes -> 100
+
             stdDev >= ConsistencyWorstMinutes -> 0
+
             else -> lerp(
                 stdDev,
                 ConsistencyNeutralMinutes,

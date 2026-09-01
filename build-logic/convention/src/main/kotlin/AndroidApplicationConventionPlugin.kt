@@ -1,6 +1,8 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.fitdroid.convention.configureAndroidDefaults
+import com.fitdroid.convention.configureDetekt
 import com.fitdroid.convention.configureKotlinAndroid
+import com.fitdroid.convention.configureSpotless
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -15,6 +17,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 testOptions.animationsDisabled = true
             }
             configureKotlinAndroid()
+            configureSpotless()
+            configureDetekt()
         }
     }
 }

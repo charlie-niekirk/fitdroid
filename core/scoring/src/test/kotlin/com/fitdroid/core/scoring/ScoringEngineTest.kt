@@ -5,13 +5,13 @@ import com.fitdroid.core.model.ExerciseSession
 import com.fitdroid.core.model.SleepSession
 import com.fitdroid.core.model.SleepStage
 import com.fitdroid.core.model.SleepStageType
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneOffset
 
 class ScoringEngineTest {
     private val zone = ZoneOffset.UTC

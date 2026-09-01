@@ -61,14 +61,16 @@ fun PrivacyPolicyScreen(
 
 @Composable
 private fun PrivacySection(title: String, body: String) {
-    Spacer(Modifier.height(20.dp))
-    Text(text = title, style = MaterialTheme.typography.titleLarge)
-    Spacer(Modifier.height(8.dp))
-    Text(
-        text = body,
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    Column {
+        Spacer(Modifier.height(20.dp))
+        Text(text = title, style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = body,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }
 
 @Preview(showBackground = true)

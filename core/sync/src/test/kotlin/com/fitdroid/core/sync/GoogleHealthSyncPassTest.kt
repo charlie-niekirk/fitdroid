@@ -9,14 +9,14 @@ import com.fitdroid.core.network.model.DailyHeartRateVariability
 import com.fitdroid.core.network.model.DataPoint
 import com.fitdroid.core.network.model.GoogleDate
 import com.fitdroid.core.network.model.IdentityResponse
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class GoogleHealthSyncPassTest {
     private val zone = ZoneOffset.UTC

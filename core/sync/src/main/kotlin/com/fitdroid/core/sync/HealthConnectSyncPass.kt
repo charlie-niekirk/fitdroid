@@ -95,6 +95,7 @@ class HealthConnectSyncPass(
                             unknownDeletion = true
                         }
                     }
+
                     is HealthConnectChange.Upsert -> {
                         aggregateDates += applyUpsert(change.payload)
                     }
@@ -118,14 +119,17 @@ class HealthConnectSyncPass(
                 store.upsertSleep(payload.session)
                 emptySet()
             }
+
             is HealthRecordPayload.Exercise -> {
                 store.upsertExercise(payload.session)
                 datesSpanned(payload.session.start, payload.session.end)
             }
+
             is HealthRecordPayload.HeartRate -> {
                 upsertHeartRate(payload.samples)
                 emptySet()
             }
+
             is HealthRecordPayload.RestingHeartRate -> {
                 val date = payload.sample.time.atZone(zoneId).toLocalDate()
                 store.mergeDailyMetrics(
@@ -133,9 +137,13 @@ class HealthConnectSyncPass(
                 )
                 emptySet()
             }
+
             is HealthRecordPayload.Steps -> datesSpanned(payload.start, payload.end)
+
             is HealthRecordPayload.Calories -> datesSpanned(payload.start, payload.end)
+
             is HealthRecordPayload.Distance -> datesSpanned(payload.start, payload.end)
+
             is HealthRecordPayload.Unknown -> emptySet()
         }
 

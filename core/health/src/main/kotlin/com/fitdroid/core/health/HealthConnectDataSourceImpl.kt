@@ -142,12 +142,19 @@ class HealthConnectDataSourceImpl(
     private fun Record.toPayload(): HealthRecordPayload =
         when (this) {
             is SleepSessionRecord -> HealthRecordPayload.Sleep(toSleepSession())
+
             is HeartRateRecord -> HealthRecordPayload.HeartRate(toHeartRateSamples())
+
             is RestingHeartRateRecord -> HealthRecordPayload.RestingHeartRate(toRestingHeartRateSample())
+
             is StepsRecord -> toPayload()
+
             is ExerciseSessionRecord -> HealthRecordPayload.Exercise(toExerciseSession())
+
             is TotalCaloriesBurnedRecord -> toPayload()
+
             is DistanceRecord -> toPayload()
+
             else -> HealthRecordPayload.Unknown(
                 type = this::class.simpleName.orEmpty(),
                 hcRecordId = metadata.id,

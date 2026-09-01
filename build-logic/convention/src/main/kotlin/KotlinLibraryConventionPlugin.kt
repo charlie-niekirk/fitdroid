@@ -1,4 +1,6 @@
+import com.fitdroid.convention.configureDetekt
 import com.fitdroid.convention.configureKotlinJvm
+import com.fitdroid.convention.configureSpotless
 import com.fitdroid.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -10,6 +12,8 @@ class KotlinLibraryConventionPlugin : Plugin<Project> {
         with(target) {
             apply(plugin = "org.jetbrains.kotlin.jvm")
             configureKotlinJvm()
+            configureSpotless()
+            configureDetekt()
             dependencies {
                 "testImplementation"(libs.findLibrary("junit").get())
             }

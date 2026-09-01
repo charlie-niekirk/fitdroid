@@ -1,6 +1,8 @@
 import com.android.build.api.dsl.LibraryExtension
 import com.fitdroid.convention.configureAndroidDefaults
+import com.fitdroid.convention.configureDetekt
 import com.fitdroid.convention.configureKotlinAndroid
+import com.fitdroid.convention.configureSpotless
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -22,6 +24,8 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                     .lowercase() + "_"
             }
             configureKotlinAndroid()
+            configureSpotless()
+            configureDetekt()
         }
     }
 }

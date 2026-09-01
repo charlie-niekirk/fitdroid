@@ -14,17 +14,18 @@ import com.fitdroid.feature.onboarding.OnboardingScreen
 import com.fitdroid.ui.main.MainScreen
 
 @Composable
-fun MainNavigation() {
+fun MainNavigation(modifier: Modifier = Modifier) {
     val backStack = rememberNavBackStack(Onboarding)
 
     NavDisplay(
         backStack = backStack,
+        modifier = modifier,
         onBack = { backStack.removeLastOrNull() },
         entryProvider =
             entryProvider {
                 entry<Onboarding> {
                     OnboardingScreen(
-                        onFinished = { backStack.navigateToMain() },
+                        onComplete = { backStack.navigateToMain() },
                         modifier = Modifier.safeDrawingPadding(),
                     )
                 }

@@ -37,7 +37,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun OnboardingScreen(
-    onFinished: () -> Unit,
+    onComplete: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: OnboardingViewModel = metroViewModel(),
 ) {
@@ -68,13 +68,17 @@ fun OnboardingScreen(
         when (effect) {
             is OnboardingEffect.RequestHealthConnectPermissions ->
                 permissionLauncher.launch(effect.permissions)
+
             is OnboardingEffect.LaunchGoogleHealthAuth ->
                 authLauncher.launch(effect.intent)
+
             OnboardingEffect.OpenHealthConnectSettings ->
                 runCatching { context.startActivity(HealthConnectLauncher.settingsIntent()) }
+
             OnboardingEffect.OpenProviderUpdate ->
                 runCatching { context.startActivity(HealthConnectLauncher.providerUpdateIntent(context)) }
-            OnboardingEffect.Completed -> onFinished()
+
+            OnboardingEffect.Completed -> onComplete()
         }
     }
 
@@ -109,9 +113,11 @@ internal fun OnboardingContent(
                 CircularProgressIndicator()
             }
         }
+
         OnboardingStep.PrivacyPolicy -> {
             PrivacyPolicyScreen(onBack = onHidePrivacyPolicy, modifier = modifier)
         }
+
         OnboardingStep.Unavailable -> {
             OnboardingPane(
                 title = stringResource(R.string.feature_onboarding_unavailable_title),
@@ -119,6 +125,7 @@ internal fun OnboardingContent(
                 modifier = modifier,
             )
         }
+
         OnboardingStep.UpdateRequired -> {
             OnboardingPane(
                 title = stringResource(R.string.feature_onboarding_update_title),
@@ -128,6 +135,7 @@ internal fun OnboardingContent(
                 modifier = modifier,
             )
         }
+
         OnboardingStep.RequestPermissions -> {
             OnboardingPane(
                 title = stringResource(R.string.feature_onboarding_permissions_title),
@@ -158,6 +166,7 @@ internal fun OnboardingContent(
                 modifier = modifier,
             )
         }
+
         OnboardingStep.LinkGoogleHealth -> {
             OnboardingPane(
                 title = stringResource(R.string.feature_onboarding_google_health_title),
@@ -188,6 +197,7 @@ internal fun OnboardingContent(
                 modifier = modifier,
             )
         }
+
         OnboardingStep.Ready -> {
             OnboardingPane(
                 title = stringResource(R.string.feature_onboarding_ready_title),
