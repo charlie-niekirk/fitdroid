@@ -16,9 +16,15 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 "implementation"(project(":core:designsystem"))
                 "implementation"(project(":core:common"))
                 "implementation"(project(":core:model"))
+                "implementation"(libs.findLibrary("androidx-activity-compose").get())
                 "implementation"(libs.findLibrary("androidx-lifecycle-runtime-compose").get())
                 "implementation"(libs.findLibrary("androidx-lifecycle-viewmodel-compose").get())
                 "implementation"(libs.findLibrary("metrox-viewmodel-compose").get())
+                "implementation"(libs.findLibrary("orbit-viewmodel").get())
+                "implementation"(libs.findLibrary("orbit-compose").get())
+                "implementation"(libs.findLibrary("androidx-compose-ui").get())
+                "implementation"(libs.findLibrary("androidx-compose-foundation").get())
+                "implementation"(libs.findLibrary("androidx-compose-material3").get())
             }
         }
     }
