@@ -7,4 +7,24 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.metro) apply false
     alias(libs.plugins.room) apply false
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.detekt) apply false
+}
+
+spotless {
+    val ktlintVersion = libs.versions.ktlint.get()
+    kotlin {
+        target("build-logic/convention/src/**/*.kt")
+        ktlint(ktlintVersion)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        target("build-logic/*.gradle.kts")
+        target("build-logic/convention/*.gradle.kts")
+        ktlint(ktlintVersion)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
