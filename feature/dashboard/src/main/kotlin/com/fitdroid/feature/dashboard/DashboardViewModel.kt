@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.fitdroid.core.database.ActivityRepository
 import com.fitdroid.core.database.ScoreRepository
 import com.fitdroid.core.sync.ImmediateSync
+import com.fitdroid.core.sync.UserSettingsRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -22,6 +23,7 @@ import org.orbitmvi.orbit.viewmodel.orbitContainer
 class DashboardViewModel(
     private val scores: ScoreRepository,
     private val activity: ActivityRepository,
+    private val settings: UserSettingsRepository,
     private val sync: ImmediateSync,
     clock: Clock,
     zoneId: ZoneId,
@@ -57,7 +59,8 @@ class DashboardViewModel(
             combine(
                 scores.observeInRange(rangeStart, rangeEndExclusive),
                 activity.observeMetrics(rangeStart, rangeEndExclusive),
-            ) { scoreList, metrics ->
+                settings.settings,
+            ) { scoreList, metrics, userSettings ->
                 val todayScores = scoreList.firstOrNull { it.date == today }
                 DashboardState(
                     isLoading = false,
@@ -70,6 +73,7 @@ class DashboardViewModel(
                         .sortedBy { it.date }
                         .mapNotNull { it.sleep?.score?.toFloat() },
                     steps = metrics.firstOrNull { it.date == today }?.steps,
+                    stepGoal = userSettings.steps,
                 )
             }.collect { next ->
                 reduce { next }

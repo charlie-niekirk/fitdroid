@@ -27,6 +27,8 @@ class HomeNavigationBarTest {
         composeTestRule.onNodeWithText("Today").assertExists()
         composeTestRule.onNodeWithText("Sleep").assertExists()
         composeTestRule.onNodeWithText("Activity").assertExists()
+        composeTestRule.onNodeWithText("Reports").assertExists()
+        composeTestRule.onNodeWithText("Settings").assertExists()
         composeTestRule.onNodeWithText("Today").assertIsSelected()
     }
 }

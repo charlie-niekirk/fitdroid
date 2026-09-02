@@ -14,7 +14,7 @@ class FitdroidApplication : Application(), MetroApplication, Configuration.Provi
 
     override fun onCreate() {
         super.onCreate()
-        appGraph.syncScheduler.schedulePeriodic()
+        appGraph.syncPolicy.start()
     }
 
     override val appComponentProviders: MetroAppComponentProviders

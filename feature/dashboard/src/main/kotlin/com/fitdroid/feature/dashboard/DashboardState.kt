@@ -3,6 +3,7 @@ package com.fitdroid.feature.dashboard
 import com.fitdroid.core.model.ActivityScore
 import com.fitdroid.core.model.ReadinessScore
 import com.fitdroid.core.model.SleepScore
+import com.fitdroid.core.model.UserSettings
 import java.time.LocalDate
 
 data class DashboardState(
@@ -14,7 +15,7 @@ data class DashboardState(
     val activityScore: ActivityScore? = null,
     val sleepTrend: List<Float> = emptyList(),
     val steps: Long? = null,
-    val stepGoal: Long = DefaultStepGoal,
+    val stepGoal: Long = UserSettings.DefaultSteps,
 ) {
     val hasAnyScore: Boolean
         get() = sleepScore != null || readinessScore != null || activityScore != null
@@ -25,5 +26,4 @@ sealed interface DashboardEffect {
     data object OpenActivity : DashboardEffect
 }
 
-internal const val DefaultStepGoal = 10_000L
 internal const val ScoreWindowDays = 30L

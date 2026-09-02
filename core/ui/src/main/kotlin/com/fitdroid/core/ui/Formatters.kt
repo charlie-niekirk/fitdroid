@@ -25,6 +25,16 @@ object Formatters {
             .withZone(zoneId)
             .format(instant)
 
+    fun dateTime(
+        instant: Instant,
+        zoneId: ZoneId,
+        locale: Locale = Locale.getDefault(),
+    ): String =
+        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+            .withLocale(locale)
+            .withZone(zoneId)
+            .format(instant)
+
     fun duration(duration: Duration): String {
         val hours = duration.toHours()
         val minutes = duration.toMinutesPart()

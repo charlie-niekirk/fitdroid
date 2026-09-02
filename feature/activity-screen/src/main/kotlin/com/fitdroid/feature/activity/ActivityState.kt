@@ -3,6 +3,7 @@ package com.fitdroid.feature.activity
 import com.fitdroid.core.model.ActivityScore
 import com.fitdroid.core.model.DailyMetrics
 import com.fitdroid.core.model.ExerciseSession
+import com.fitdroid.core.model.UserSettings
 import java.time.LocalDate
 
 data class ActivityState(
@@ -14,7 +15,7 @@ data class ActivityState(
     val metricsByDate: Map<LocalDate, DailyMetrics> = emptyMap(),
     val exercisesByDate: Map<LocalDate, List<ExerciseSession>> = emptyMap(),
     val recentScores: List<Float> = emptyList(),
-    val stepGoal: Long = DefaultStepGoal,
+    val stepGoal: Long = UserSettings.DefaultSteps,
 ) {
     val score: ActivityScore? get() = scoresByDate[selectedDate]
     val metrics: DailyMetrics? get() = metricsByDate[selectedDate]
@@ -25,5 +26,4 @@ data class ActivityState(
         get() = score != null || metrics != null || exercises.isNotEmpty()
 }
 
-internal const val DefaultStepGoal = 10_000L
 internal const val ScoreWindowDays = 30L

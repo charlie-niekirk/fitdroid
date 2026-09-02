@@ -3,7 +3,7 @@ package com.fitdroid.di
 import android.app.Application
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.WorkerFactory
-import com.fitdroid.core.sync.SyncScheduler
+import com.fitdroid.core.sync.SyncPolicy
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -15,7 +15,7 @@ interface AppGraph : MetroAppComponentProviders, ViewModelGraph {
     val application: Application
     val viewModelFactory: ViewModelProvider.Factory
     val workerFactory: WorkerFactory
-    val syncScheduler: SyncScheduler
+    val syncPolicy: SyncPolicy
 
     @DependencyGraph.Factory
     fun interface Factory {
