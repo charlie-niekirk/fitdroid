@@ -144,15 +144,31 @@ internal fun SleepContent(
                     if (state.useClassicHypnogram) {
                         Hypnogram(segments = state.hypnogram)
                         Spacer(Modifier.height(16.dp))
-                        StageRow(stringResource(R.string.feature_sleep_screen_deep), state.deepDuration)
-                        StageRow(stringResource(R.string.feature_sleep_screen_rem), state.remDuration)
-                        StageRow(stringResource(R.string.feature_sleep_screen_light), state.lightDuration)
-                        StageRow(stringResource(R.string.feature_sleep_screen_awake), state.awakeDuration)
+                        StageRow(
+                            stringResource(R.string.feature_sleep_screen_deep),
+                            state.classicDeepDuration,
+                        )
+                        StageRow(
+                            stringResource(R.string.feature_sleep_screen_rem),
+                            state.classicRemDuration,
+                        )
+                        StageRow(
+                            stringResource(R.string.feature_sleep_screen_light),
+                            state.classicLightDuration,
+                        )
+                        StageRow(
+                            stringResource(R.string.feature_sleep_screen_awake),
+                            state.classicAwakeDuration,
+                        )
                     } else {
                         StagedHypnogram(
-                            segments = state.hypnogram,
+                            segments = state.stagedHypnogram,
                             awakeLabel = stringResource(R.string.feature_sleep_screen_awake),
                             awakeDuration = state.awakeDuration,
+                            restlessnessLabel = stringResource(
+                                R.string.feature_sleep_screen_restlessness,
+                            ),
+                            restlessnessDuration = state.restlessnessDuration,
                             remLabel = stringResource(R.string.feature_sleep_screen_rem),
                             remDuration = state.remDuration,
                             lightLabel = stringResource(R.string.feature_sleep_screen_light),
@@ -269,10 +285,28 @@ private fun SleepContentPreview() {
                     HypnogramSegment(SleepStageType.Rem, Duration.ofMinutes(45), 0.53f, 0.67f),
                     HypnogramSegment(SleepStageType.Light, Duration.ofMinutes(100), 0.67f, 1f),
                 ),
+                stagedHypnogram = listOf(
+                    HypnogramSegment(SleepStageType.Awake, Duration.ofMinutes(12), 0f, 0.025f),
+                    HypnogramSegment(SleepStageType.Light, Duration.ofMinutes(90), 0.025f, 0.31f),
+                    HypnogramSegment(
+                        SleepStageType.AwakeInBed,
+                        Duration.ofMinutes(2),
+                        0.12f,
+                        0.124f,
+                    ),
+                    HypnogramSegment(SleepStageType.Deep, Duration.ofMinutes(70), 0.31f, 0.53f),
+                    HypnogramSegment(SleepStageType.Rem, Duration.ofMinutes(45), 0.53f, 0.67f),
+                    HypnogramSegment(SleepStageType.Light, Duration.ofMinutes(100), 0.67f, 1f),
+                ),
                 lightDuration = "3h 10m",
                 deepDuration = "1h 40m",
                 remDuration = "1h 25m",
                 awakeDuration = "18m",
+                restlessnessDuration = "19m",
+                classicLightDuration = "3h 10m",
+                classicDeepDuration = "1h 40m",
+                classicRemDuration = "1h 25m",
+                classicAwakeDuration = "18m",
                 components = listOf(
                     SleepComponentUi(SleepComponent.Duration, 82),
                     SleepComponentUi(SleepComponent.Restorative, 90),

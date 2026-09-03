@@ -9,10 +9,11 @@ import com.fitdroid.core.model.SleepScoreBreakdown
 import com.fitdroid.core.model.SleepSession
 import com.fitdroid.core.model.SleepStage
 import com.fitdroid.core.model.SleepStageType
+import com.fitdroid.core.model.UserSettings
 import com.fitdroid.core.sync.ImmediateSync
 import com.fitdroid.core.sync.UserSettingsRepository
-import com.fitdroid.core.model.UserSettings
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -85,6 +86,76 @@ class SleepViewModelTest {
         ).toUiState(zone, locale)
 
         assertTrue(ui.useClassicHypnogram)
+    }
+
+    @Test
+    fun toUiState_projectsShortInteriorAwakeStagesAsRestlessness() {
+        val start = today.atStartOfDay().toInstant(zone)
+        val stages = listOf(
+            SleepStage(SleepStageType.Awake, start, start.plusSeconds(6 * 60)),
+            SleepStage(
+                SleepStageType.Light,
+                start.plusSeconds(6 * 60),
+                start.plusSeconds(11 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Awake,
+                start.plusSeconds(11 * 60),
+                start.plusSeconds(12 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Light,
+                start.plusSeconds(12 * 60),
+                start.plusSeconds(16 * 60),
+            ),
+            SleepStage(
+                SleepStageType.AwakeInBed,
+                start.plusSeconds(16 * 60),
+                start.plusSeconds(17 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Light,
+                start.plusSeconds(17 * 60),
+                start.plusSeconds(18 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Deep,
+                start.plusSeconds(18 * 60),
+                start.plusSeconds(41 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Awake,
+                start.plusSeconds(41 * 60),
+                start.plusSeconds(43 * 60),
+            ),
+        )
+        val session = SleepSession(
+            id = "restless-night",
+            start = start,
+            end = start.plusSeconds(43 * 60),
+            stages = stages,
+        )
+
+        val ui = SleepState(
+            isLoading = false,
+            selectedDate = today,
+            today = today,
+            sessions = listOf(session),
+        ).toUiState(zone, locale)
+
+        assertEquals("8m", ui.awakeDuration)
+        assertEquals("2m", ui.restlessnessDuration)
+        assertEquals("12m", ui.lightDuration)
+        assertEquals("35m", ui.asleepLabel)
+        assertEquals("10m", ui.classicAwakeDuration)
+        assertEquals("10m", ui.classicLightDuration)
+        assertEquals(6, ui.stagedHypnogram.size)
+        assertEquals(
+            Duration.ofMinutes(2),
+            ui.stagedHypnogram
+                .filter { it.type == SleepStageType.AwakeInBed }
+                .fold(Duration.ZERO) { total, segment -> total + segment.duration },
+        )
     }
 
     @Test

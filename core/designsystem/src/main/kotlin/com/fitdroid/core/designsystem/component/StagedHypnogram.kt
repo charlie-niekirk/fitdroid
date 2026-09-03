@@ -33,7 +33,7 @@ import java.time.Duration
 import kotlin.math.abs
 import kotlin.math.max
 
-private val StageOrder = listOf(
+private val ConnectedStageOrder = listOf(
     SleepStageType.Awake,
     SleepStageType.Rem,
     SleepStageType.Light,
@@ -44,9 +44,8 @@ private val LabelHeight = 20.dp
 private val LabelTrackGap = 4.dp
 private val TrackHeight = 24.dp
 private val LaneGap = 12.dp
-private val ChartHeight = 232.dp
-private val ConnectorThreshold = 8.dp
 private val AwakeMinimumWidth = 4.dp
+private val EventMinimumWidth = 1.dp
 private val ConnectorWidth = 3.dp
 private const val ConnectorAlpha = 0.28f
 private const val ConnectedSegmentFillAlpha = 0.82f
@@ -57,6 +56,8 @@ fun StagedHypnogram(
     segments: List<HypnogramSegment>,
     awakeLabel: String,
     awakeDuration: String,
+    restlessnessLabel: String,
+    restlessnessDuration: String,
     remLabel: String,
     remDuration: String,
     lightLabel: String,
@@ -68,21 +69,32 @@ fun StagedHypnogram(
     endTimeLabel: String,
     modifier: Modifier = Modifier,
 ) {
+    val showRestlessness = segments.any { it.type == SleepStageType.AwakeInBed }
+    val stageOrder = buildList {
+        add(SleepStageType.Awake)
+        if (showRestlessness) add(SleepStageType.AwakeInBed)
+        addAll(ConnectedStageOrder.drop(1))
+    }
     val summaries = mapOf(
         SleepStageType.Awake to StageSummary(awakeLabel, awakeDuration),
+        SleepStageType.AwakeInBed to StageSummary(restlessnessLabel, restlessnessDuration),
         SleepStageType.Rem to StageSummary(remLabel, remDuration),
         SleepStageType.Light to StageSummary(lightLabel, lightDuration),
         SleepStageType.Deep to StageSummary(deepLabel, deepDuration),
     )
     val description = buildString {
         append("Sleep stages. ")
-        StageOrder.joinTo(this, separator = ", ") { type ->
+        stageOrder.joinTo(this, separator = ", ") { type ->
             val summary = summaries.getValue(type)
             "${summary.label}: ${summary.duration}"
         }
         append(". $startTimeLabel to $endTimeLabel")
     }
     val trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    val chartHeight =
+        (LabelHeight + LabelTrackGap + TrackHeight) * stageOrder.size +
+            LaneGap * (stageOrder.size - 1) +
+            4.dp
 
     Column(
         modifier = modifier
@@ -92,18 +104,18 @@ fun StagedHypnogram(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(ChartHeight),
+                .height(chartHeight),
         ) {
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(ChartHeight),
+                    .height(chartHeight),
             ) {
                 val trackHeight = TrackHeight.toPx()
                 val laneGap = LaneGap.toPx()
                 val labelHeight = LabelHeight.toPx()
                 val labelTrackGap = LabelTrackGap.toPx()
-                val trackTopByStage = StageOrder.mapIndexed { index, type ->
+                val trackTopByStage = stageOrder.mapIndexed { index, type ->
                     type to index * (labelHeight + labelTrackGap + trackHeight + laneGap) +
                         labelHeight + labelTrackGap
                 }.toMap()
@@ -116,28 +128,27 @@ fun StagedHypnogram(
                     )
                 }
 
-                val chronological = segments
-                    .filter { it.type in StageOrder }
+                val drawableSegments = segments
+                    .filter { it.type in stageOrder }
                     .sortedBy { it.startFraction }
-                val connections = chronological.zipWithNext()
-                    .mapIndexedNotNull { index, (previous, current) ->
-                        val previousWidth = (previous.endFraction - previous.startFraction) * size.width
-                        val currentWidth = (current.endFraction - current.startFraction) * size.width
+                val transitionSegments = drawableSegments
+                    .filter { it.type in ConnectedStageOrder }
+                val connections = transitionSegments.zipWithNext()
+                    .mapNotNull { (previous, current) ->
                         if (
                             previous.type != current.type &&
-                            previousWidth >= ConnectorThreshold.toPx() &&
-                            currentWidth >= ConnectorThreshold.toPx() &&
                             abs(previous.endFraction - current.startFraction) <= 0.002f
                         ) {
-                            StageConnection(index, index + 1)
+                            StageConnection(previous, current)
                         } else {
                             null
                         }
                     }
 
+                val borderInset = ConnectorWidth.toPx() / 2
                 connections.forEach { connection ->
-                    val previous = chronological[connection.fromIndex]
-                    val current = chronological[connection.toIndex]
+                    val previous = connection.from
+                    val current = connection.to
                     val x = previous.endFraction * size.width
                     val previousTop = trackTopByStage.getValue(previous.type)
                     val currentTop = trackTopByStage.getValue(current.type)
@@ -145,14 +156,14 @@ fun StagedHypnogram(
                     val currentColor = current.type.hypnogramColor().copy(alpha = ConnectorAlpha)
                     val (top, bottom, colors) = if (previousTop < currentTop) {
                         Triple(
-                            previousTop + trackHeight,
-                            currentTop,
+                            previousTop + trackHeight - borderInset,
+                            currentTop + borderInset,
                             listOf(previousColor, currentColor),
                         )
                     } else {
                         Triple(
-                            currentTop + trackHeight,
-                            previousTop,
+                            currentTop + trackHeight - borderInset,
+                            previousTop + borderInset,
                             listOf(currentColor, previousColor),
                         )
                     }
@@ -167,52 +178,60 @@ fun StagedHypnogram(
                     )
                 }
 
-                chronological.forEachIndexed { index, segment ->
+                drawableSegments.forEach { segment ->
                     val trackTop = trackTopByStage.getValue(segment.type)
                     val rawWidth = (segment.endFraction - segment.startFraction) * size.width
-                    if (rawWidth <= 0f) return@forEachIndexed
-                    val segmentWidth = if (segment.type == SleepStageType.Awake) {
-                        max(rawWidth, AwakeMinimumWidth.toPx())
-                    } else {
-                        rawWidth
+                    if (rawWidth <= 0f) return@forEach
+                    val minimumWidth = when (segment.type) {
+                        SleepStageType.Awake -> AwakeMinimumWidth.toPx()
+                        SleepStageType.AwakeInBed -> EventMinimumWidth.toPx()
+                        else -> 0f
                     }
+                    val segmentWidth = max(rawWidth, minimumWidth)
                     val rawX = segment.startFraction * size.width
-                    val x = if (segment.type == SleepStageType.Awake) {
+                    val x = if (minimumWidth > 0f) {
                         (rawX - (segmentWidth - rawWidth) / 2)
                             .coerceIn(0f, size.width - segmentWidth)
                     } else {
                         rawX
                     }
-                    val incoming = connections.firstOrNull { it.toIndex == index }
-                    val outgoing = connections.firstOrNull { it.fromIndex == index }
+                    val incoming = connections.firstOrNull { it.to === segment }
+                    val outgoing = connections.firstOrNull { it.from === segment }
                     val incomingTop = incoming
-                        ?.let { chronological[it.fromIndex].type }
+                        ?.from
+                        ?.type
                         ?.let(trackTopByStage::getValue)
                         ?.let { it < trackTop }
                         ?: false
                     val incomingBottom = incoming
-                        ?.let { chronological[it.fromIndex].type }
+                        ?.from
+                        ?.type
                         ?.let(trackTopByStage::getValue)
                         ?.let { it > trackTop }
                         ?: false
                     val outgoingTop = outgoing
-                        ?.let { chronological[it.toIndex].type }
+                        ?.to
+                        ?.type
                         ?.let(trackTopByStage::getValue)
                         ?.let { it < trackTop }
                         ?: false
                     val outgoingBottom = outgoing
-                        ?.let { chronological[it.toIndex].type }
+                        ?.to
+                        ?.type
                         ?.let(trackTopByStage::getValue)
                         ?.let { it > trackTop }
                         ?: false
                     val rounded = CornerRadius(trackHeight / 2)
                     val square = CornerRadius(0f)
+                    val left = (x - if (incoming != null) borderInset else 0f).coerceAtLeast(0f)
+                    val right = (x + segmentWidth + if (outgoing != null) borderInset else 0f)
+                        .coerceAtMost(size.width)
                     val path = Path().apply {
                         addRoundRect(
                             RoundRect(
-                                left = x,
+                                left = left,
                                 top = trackTop,
-                                right = x + segmentWidth,
+                                right = right,
                                 bottom = trackTop + trackHeight,
                                 topLeftCornerRadius = if (incomingTop) square else rounded,
                                 topRightCornerRadius = if (outgoingTop) square else rounded,
@@ -229,8 +248,25 @@ fun StagedHypnogram(
                         ),
                     )
                     if (hasConnection) {
+                        val borderRounded = CornerRadius(trackHeight / 2 - borderInset)
+                        val borderPath = Path().apply {
+                            addRoundRect(
+                                RoundRect(
+                                    left = left + borderInset,
+                                    top = trackTop + borderInset,
+                                    right = right - borderInset,
+                                    bottom = trackTop + trackHeight - borderInset,
+                                    topLeftCornerRadius = if (incomingTop) square else borderRounded,
+                                    topRightCornerRadius = if (outgoingTop) square else borderRounded,
+                                    bottomRightCornerRadius =
+                                        if (outgoingBottom) square else borderRounded,
+                                    bottomLeftCornerRadius =
+                                        if (incomingBottom) square else borderRounded,
+                                ),
+                            )
+                        }
                         drawPath(
-                            path = path,
+                            path = borderPath,
                             color = segment.type.hypnogramColor()
                                 .copy(alpha = ConnectedSegmentBorderAlpha),
                             style = Stroke(
@@ -243,12 +279,12 @@ fun StagedHypnogram(
             }
 
             Column {
-                StageOrder.forEachIndexed { index, type ->
+                stageOrder.forEachIndexed { index, type ->
                     val summary = summaries.getValue(type)
                     StageHeader(summary)
                     Spacer(Modifier.height(LabelTrackGap))
                     Spacer(Modifier.height(TrackHeight))
-                    if (index != StageOrder.lastIndex) {
+                    if (index != stageOrder.lastIndex) {
                         Spacer(Modifier.height(LaneGap))
                     }
                 }
@@ -288,39 +324,41 @@ private fun TimelineAxis(
     endTimeLabel: String,
 ) {
     val tickColor = MaterialTheme.colorScheme.outlineVariant
-    Canvas(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(8.dp),
-    ) {
-        listOf(0f, size.width / 2, size.width).forEach { x ->
-            drawLine(
-                color = tickColor,
-                start = Offset(x, 0f),
-                end = Offset(x, size.height),
-                strokeWidth = 1.dp.toPx(),
-                cap = StrokeCap.Round,
+    Column {
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp),
+        ) {
+            listOf(0f, size.width / 2, size.width).forEach { x ->
+                drawLine(
+                    color = tickColor,
+                    start = Offset(x, 0f),
+                    end = Offset(x, size.height),
+                    strokeWidth = 1.dp.toPx(),
+                    cap = StrokeCap.Round,
+                )
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = startTimeLabel,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text(
+                text = midpointTimeLabel,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = endTimeLabel,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.End,
             )
         }
-    }
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = startTimeLabel,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodySmall,
-        )
-        Text(
-            text = midpointTimeLabel,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = endTimeLabel,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.End,
-        )
     }
 }
 
@@ -330,8 +368,8 @@ private data class StageSummary(
 )
 
 private data class StageConnection(
-    val fromIndex: Int,
-    val toIndex: Int,
+    val from: HypnogramSegment,
+    val to: HypnogramSegment,
 )
 
 @Preview(showBackground = true)
@@ -342,6 +380,8 @@ private fun StagedHypnogramPreview() {
             segments = listOf(
                 HypnogramSegment(SleepStageType.Awake, Duration.ofMinutes(6), 0f, 0.015f),
                 HypnogramSegment(SleepStageType.Light, Duration.ofMinutes(70), 0.015f, 0.18f),
+                HypnogramSegment(SleepStageType.AwakeInBed, Duration.ofMinutes(1), 0.08f, 0.082f),
+                HypnogramSegment(SleepStageType.AwakeInBed, Duration.ofMinutes(2), 0.12f, 0.126f),
                 HypnogramSegment(SleepStageType.Deep, Duration.ofMinutes(80), 0.18f, 0.37f),
                 HypnogramSegment(SleepStageType.Light, Duration.ofMinutes(45), 0.37f, 0.48f),
                 HypnogramSegment(SleepStageType.Rem, Duration.ofMinutes(42), 0.48f, 0.58f),
@@ -352,6 +392,8 @@ private fun StagedHypnogramPreview() {
             ),
             awakeLabel = "Awake",
             awakeDuration = "13m",
+            restlessnessLabel = "Restlessness",
+            restlessnessDuration = "19m",
             remLabel = "REM",
             remDuration = "1h 27m",
             lightLabel = "Light",

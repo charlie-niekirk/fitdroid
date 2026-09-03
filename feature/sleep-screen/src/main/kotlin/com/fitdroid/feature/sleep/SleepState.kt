@@ -8,6 +8,7 @@ import com.fitdroid.core.model.SleepStage
 import com.fitdroid.core.model.SleepStageType
 import com.fitdroid.core.ui.Formatters
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Locale
@@ -36,10 +37,16 @@ data class SleepUiState(
     val timeInBedLabel: String = "",
     val asleepLabel: String = "",
     val hypnogram: List<HypnogramSegment> = emptyList(),
+    val stagedHypnogram: List<HypnogramSegment> = emptyList(),
     val lightDuration: String = "",
     val deepDuration: String = "",
     val remDuration: String = "",
     val awakeDuration: String = "",
+    val restlessnessDuration: String = "",
+    val classicLightDuration: String = "",
+    val classicDeepDuration: String = "",
+    val classicRemDuration: String = "",
+    val classicAwakeDuration: String = "",
     val useClassicHypnogram: Boolean = false,
     val components: List<SleepComponentUi> = emptyList(),
     val trendDelta: Int? = null,
@@ -78,7 +85,10 @@ internal fun SleepState.toUiState(
     val end = nightSessions.maxOfOrNull { it.end }
     val timeInBed = if (start != null && end != null) Duration.between(start, end) else Duration.ZERO
     val windowMillis = timeInBed.toMillis().coerceAtLeast(1L)
-    val asleep = nightSessions.fold(Duration.ZERO) { acc, session -> acc + session.asleepDuration }
+    val stagedStages = stages.toStagedStages(start, end)
+    val asleep = stagedStages.base
+        .filter { it.type in AsleepStageTypes }
+        .fold(Duration.ZERO) { acc, stage -> acc + stage.duration }
     val baseline = scores.filter {
         it.date != selectedDate && it.date >= selectedDate.minusDays(TrendBaselineDays)
     }
@@ -103,23 +113,24 @@ internal fun SleepState.toUiState(
         timeInBedLabel = Formatters.duration(timeInBed),
         asleepLabel = Formatters.duration(asleep),
         hypnogram = stages.map { stage ->
-            HypnogramSegment(
-                type = stage.type,
-                duration = stage.duration,
-                startFraction = start?.let {
-                    (Duration.between(it, stage.start).toMillis() / windowMillis.toFloat())
-                        .coerceIn(0f, 1f)
-                } ?: 0f,
-                endFraction = start?.let {
-                    (Duration.between(it, stage.end).toMillis() / windowMillis.toFloat())
-                        .coerceIn(0f, 1f)
-                } ?: 0f,
-            )
+            stage.toHypnogramSegment(start, windowMillis, classic = true)
         },
-        lightDuration = Formatters.duration(stages.total(SleepStageType.Light)),
-        deepDuration = Formatters.duration(stages.total(SleepStageType.Deep)),
-        remDuration = Formatters.duration(stages.total(SleepStageType.Rem)),
-        awakeDuration = Formatters.duration(stages.total(SleepStageType.Awake)),
+        stagedHypnogram = (stagedStages.base + stagedStages.restlessness)
+            .sortedBy { it.start }
+            .map { stage -> stage.toHypnogramSegment(start, windowMillis) },
+        lightDuration = Formatters.duration(stagedStages.base.total(SleepStageType.Light)),
+        deepDuration = Formatters.duration(stagedStages.base.total(SleepStageType.Deep)),
+        remDuration = Formatters.duration(stagedStages.base.total(SleepStageType.Rem)),
+        awakeDuration = Formatters.duration(stagedStages.base.total(SleepStageType.Awake)),
+        restlessnessDuration = Formatters.duration(
+            stagedStages.restlessness.total(SleepStageType.AwakeInBed),
+        ),
+        classicLightDuration = Formatters.duration(stages.total(SleepStageType.Light)),
+        classicDeepDuration = Formatters.duration(stages.total(SleepStageType.Deep)),
+        classicRemDuration = Formatters.duration(stages.total(SleepStageType.Rem)),
+        classicAwakeDuration = Formatters.duration(
+            stages.total(SleepStageType.Awake) + stages.total(SleepStageType.AwakeInBed),
+        ),
         useClassicHypnogram = useClassicHypnogram,
         components = nightScore?.let { score ->
             listOf(
@@ -141,3 +152,72 @@ internal fun SleepState.toUiState(
 
 private fun List<SleepStage>.total(type: SleepStageType): Duration =
     filter { it.type == type }.fold(Duration.ZERO) { acc, stage -> acc + stage.duration }
+
+private val AsleepStageTypes = setOf(
+    SleepStageType.Light,
+    SleepStageType.Deep,
+    SleepStageType.Rem,
+)
+
+private val RestlessnessMaximumDuration: Duration = Duration.ofMinutes(5)
+
+private data class StagedStages(
+    val base: List<SleepStage>,
+    val restlessness: List<SleepStage>,
+)
+
+private fun List<SleepStage>.toStagedStages(
+    nightStart: Instant?,
+    nightEnd: Instant?,
+): StagedStages {
+    val classified = sortedBy { it.start }.map { stage ->
+        val isShortInteriorAwake =
+            stage.type == SleepStageType.Awake &&
+                stage.duration < RestlessnessMaximumDuration &&
+                nightStart != null &&
+                nightEnd != null &&
+                stage.start > nightStart &&
+                stage.end < nightEnd
+        stage to (stage.type == SleepStageType.AwakeInBed || isShortInteriorAwake)
+    }
+    val restlessness = classified
+        .filter { it.second }
+        .map { (stage) -> stage.copy(type = SleepStageType.AwakeInBed) }
+    val base = classified
+        .map { (stage, isRestlessness) ->
+            if (isRestlessness) stage.copy(type = SleepStageType.Light) else stage
+        }
+        .mergeAdjacentStages()
+    return StagedStages(base = base, restlessness = restlessness)
+}
+
+private fun List<SleepStage>.mergeAdjacentStages(): List<SleepStage> =
+    fold(mutableListOf<SleepStage>()) { merged, stage ->
+        val previous = merged.lastOrNull()
+        if (
+            previous != null &&
+            previous.type == stage.type &&
+            !stage.start.isAfter(previous.end)
+        ) {
+            merged[merged.lastIndex] = previous.copy(end = maxOf(previous.end, stage.end))
+        } else {
+            merged += stage
+        }
+        merged
+    }
+
+private fun SleepStage.toHypnogramSegment(
+    nightStart: Instant?,
+    windowMillis: Long,
+    classic: Boolean = false,
+): HypnogramSegment =
+    HypnogramSegment(
+        type = if (classic && type == SleepStageType.AwakeInBed) SleepStageType.Awake else type,
+        duration = duration,
+        startFraction = nightStart?.let {
+            (Duration.between(it, start).toMillis() / windowMillis.toFloat()).coerceIn(0f, 1f)
+        } ?: 0f,
+        endFraction = nightStart?.let {
+            (Duration.between(it, end).toMillis() / windowMillis.toFloat()).coerceIn(0f, 1f)
+        } ?: 0f,
+    )
