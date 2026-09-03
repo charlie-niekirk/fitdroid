@@ -20,6 +20,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +50,8 @@ private val ConnectorThreshold = 8.dp
 private val AwakeMinimumWidth = 4.dp
 private val ConnectorWidth = 3.dp
 private const val ConnectorAlpha = 0.28f
+private const val ConnectedSegmentFillAlpha = 0.82f
+private const val ConnectedSegmentBorderAlpha = 0.96f
 
 @Composable
 fun StagedHypnogram(
@@ -217,10 +222,29 @@ fun StagedHypnogram(
                             ),
                         )
                     }
+                    val hasConnection = incoming != null || outgoing != null
                     drawPath(
                         path = path,
-                        color = segment.type.hypnogramColor(),
+                        color = segment.type.hypnogramColor().copy(
+                            alpha = if (hasConnection) ConnectedSegmentFillAlpha else 1f,
+                        ),
                     )
+                    if (hasConnection) {
+                        clipRect(
+                            top = trackTop,
+                            bottom = trackTop + trackHeight,
+                        ) {
+                            drawPath(
+                                path = path,
+                                color = segment.type.hypnogramColor()
+                                    .copy(alpha = ConnectedSegmentBorderAlpha),
+                                style = Stroke(
+                                    width = ConnectorWidth.toPx(),
+                                    join = StrokeJoin.Round,
+                                ),
+                            )
+                        }
+                    }
                 }
             }
 
