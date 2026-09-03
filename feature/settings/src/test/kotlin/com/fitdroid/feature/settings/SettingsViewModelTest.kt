@@ -80,6 +80,18 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun setUseClassicHypnogram_updatesPreference() = runTest {
+        val settings = FakeUserSettingsRepository()
+        val viewModel = viewModel(settings = settings)
+        viewModel.test(this, SettingsState(isLoading = false)) {
+            containerHost.setUseClassicHypnogram(true)
+            expectState { copy(settings = UserSettings.Default.copy(useClassicHypnogram = true)) }
+            cancelAndIgnoreRemainingItems()
+        }
+        assertEquals(true, settings.settings.value.useClassicHypnogram)
+    }
+
+    @Test
     fun syncNow_requestsImmediateSync() = runTest {
         val sync = FakeImmediateSync()
         val viewModel = viewModel(sync = sync)

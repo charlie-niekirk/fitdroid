@@ -73,6 +73,7 @@ fun SettingsScreen(
         state = state,
         onGoalDelta = viewModel::adjustGoal,
         onTogglePeriodicSync = viewModel::setPeriodicSyncEnabled,
+        onToggleClassicHypnogram = viewModel::setUseClassicHypnogram,
         onSyncNow = viewModel::syncNow,
         onOpenHealthConnect = viewModel::openHealthConnect,
         onLinkGoogleHealth = viewModel::linkGoogleHealth,
@@ -86,6 +87,7 @@ internal fun SettingsContent(
     state: SettingsState,
     onGoalDelta: (GoalField, Int) -> Unit,
     onTogglePeriodicSync: (Boolean) -> Unit,
+    onToggleClassicHypnogram: (Boolean) -> Unit,
     onSyncNow: () -> Unit,
     onOpenHealthConnect: () -> Unit,
     onLinkGoogleHealth: () -> Unit,
@@ -110,6 +112,7 @@ internal fun SettingsContent(
                 state = state,
                 onGoalDelta = onGoalDelta,
                 onTogglePeriodicSync = onTogglePeriodicSync,
+                onToggleClassicHypnogram = onToggleClassicHypnogram,
                 onSyncNow = onSyncNow,
                 onOpenHealthConnect = onOpenHealthConnect,
                 onLinkGoogleHealth = onLinkGoogleHealth,
@@ -124,6 +127,7 @@ private fun SettingsLoadedContent(
     state: SettingsState,
     onGoalDelta: (GoalField, Int) -> Unit,
     onTogglePeriodicSync: (Boolean) -> Unit,
+    onToggleClassicHypnogram: (Boolean) -> Unit,
     onSyncNow: () -> Unit,
     onOpenHealthConnect: () -> Unit,
     onLinkGoogleHealth: () -> Unit,
@@ -155,6 +159,30 @@ private fun SettingsLoadedContent(
             value = state.settings.cardioMinutes.toString(),
             onDecrease = { onGoalDelta(GoalField.CardioMinutes, -1) },
             onIncrease = { onGoalDelta(GoalField.CardioMinutes, 1) },
+        )
+        Spacer(Modifier.height(24.dp))
+        SectionTitle(stringResource(R.string.feature_settings_display))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = stringResource(R.string.feature_settings_classic_hypnogram),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f),
+            )
+            Switch(
+                checked = state.settings.useClassicHypnogram,
+                onCheckedChange = onToggleClassicHypnogram,
+            )
+        }
+        Text(
+            text = stringResource(R.string.feature_settings_classic_hypnogram_supporting),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(24.dp))
         SectionTitle(stringResource(R.string.feature_settings_sync))
@@ -347,6 +375,7 @@ private fun SettingsContentPreview() {
             ),
             onGoalDelta = { _, _ -> },
             onTogglePeriodicSync = {},
+            onToggleClassicHypnogram = {},
             onSyncNow = {},
             onOpenHealthConnect = {},
             onLinkGoogleHealth = {},

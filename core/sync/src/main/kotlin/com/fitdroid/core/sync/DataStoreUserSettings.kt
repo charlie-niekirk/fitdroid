@@ -28,34 +28,30 @@ class DataStoreUserSettings(
             produceFile = { context.applicationContext.preferencesDataStoreFile("user_settings") },
         )
 
-    override val settings: Flow<UserSettings> =
-        dataStore.data.map { prefs ->
-            UserSettings(
-                sleepTargetMinutes = prefs[SleepTargetMinutesKey] ?: UserSettings.DefaultSleepTargetMinutes,
-                steps = prefs[StepsKey] ?: UserSettings.DefaultSteps,
-                activeMinutes = prefs[ActiveMinutesKey] ?: UserSettings.DefaultActiveMinutes,
-                cardioMinutes = prefs[CardioMinutesKey] ?: UserSettings.DefaultCardioMinutes,
-                periodicSyncEnabled = prefs[PeriodicSyncKey] ?: true,
-            )
-        }
+    override val settings: Flow<UserSettings> = dataStore.data.map { it.toUserSettings() }
 
     override suspend fun update(transform: (UserSettings) -> UserSettings) {
         dataStore.edit { prefs ->
-            val current = UserSettings(
-                sleepTargetMinutes = prefs[SleepTargetMinutesKey] ?: UserSettings.DefaultSleepTargetMinutes,
-                steps = prefs[StepsKey] ?: UserSettings.DefaultSteps,
-                activeMinutes = prefs[ActiveMinutesKey] ?: UserSettings.DefaultActiveMinutes,
-                cardioMinutes = prefs[CardioMinutesKey] ?: UserSettings.DefaultCardioMinutes,
-                periodicSyncEnabled = prefs[PeriodicSyncKey] ?: true,
-            )
+            val current = prefs.toUserSettings()
             val next = transform(current)
             prefs[SleepTargetMinutesKey] = next.sleepTargetMinutes
             prefs[StepsKey] = next.steps
             prefs[ActiveMinutesKey] = next.activeMinutes
             prefs[CardioMinutesKey] = next.cardioMinutes
             prefs[PeriodicSyncKey] = next.periodicSyncEnabled
+            prefs[ClassicHypnogramKey] = next.useClassicHypnogram
         }
     }
+
+    private fun Preferences.toUserSettings(): UserSettings =
+        UserSettings(
+            sleepTargetMinutes = this[SleepTargetMinutesKey] ?: UserSettings.DefaultSleepTargetMinutes,
+            steps = this[StepsKey] ?: UserSettings.DefaultSteps,
+            activeMinutes = this[ActiveMinutesKey] ?: UserSettings.DefaultActiveMinutes,
+            cardioMinutes = this[CardioMinutesKey] ?: UserSettings.DefaultCardioMinutes,
+            periodicSyncEnabled = this[PeriodicSyncKey] ?: true,
+            useClassicHypnogram = this[ClassicHypnogramKey] ?: false,
+        )
 
     private companion object {
         val SleepTargetMinutesKey = intPreferencesKey("sleep_target_minutes")
@@ -63,5 +59,6 @@ class DataStoreUserSettings(
         val ActiveMinutesKey = intPreferencesKey("active_minutes")
         val CardioMinutesKey = intPreferencesKey("cardio_minutes")
         val PeriodicSyncKey = booleanPreferencesKey("periodic_sync_enabled")
+        val ClassicHypnogramKey = booleanPreferencesKey("use_classic_hypnogram")
     }
 }
