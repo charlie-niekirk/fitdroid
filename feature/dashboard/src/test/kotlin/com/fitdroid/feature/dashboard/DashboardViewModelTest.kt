@@ -9,7 +9,9 @@ import com.fitdroid.core.model.DailyScores
 import com.fitdroid.core.model.ExerciseSession
 import com.fitdroid.core.model.SleepScore
 import com.fitdroid.core.model.SleepScoreBreakdown
+import com.fitdroid.core.model.UserSettings
 import com.fitdroid.core.sync.ImmediateSync
+import com.fitdroid.core.sync.UserSettingsRepository
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -49,7 +51,7 @@ class DashboardViewModelTest {
             DailyMetrics(date = today, steps = 8_420),
         )
         val sync = FakeImmediateSync()
-        val viewModel = DashboardViewModel(scores, metrics, sync, clock, zone)
+        val viewModel = DashboardViewModel(scores, metrics, FakeUserSettingsRepository(), sync, clock, zone)
 
         viewModel.testWithInternalState(this) {
             runOnCreate()
@@ -72,13 +74,7 @@ class DashboardViewModelTest {
 
     @Test
     fun collect_whenEmpty_showsEmptyDashboard() = runTest {
-        val viewModel = DashboardViewModel(
-            FakeScoreRepository(),
-            FakeActivityRepository(),
-            FakeImmediateSync(),
-            clock,
-            zone,
-        )
+        val viewModel = viewModel()
         viewModel.testWithInternalState(this) {
             runOnCreate()
             expectInternalState { copy(isLoading = false, today = today) }
@@ -89,13 +85,7 @@ class DashboardViewModelTest {
 
     @Test
     fun onSleepClick_postsOpenSleep() = runTest {
-        val viewModel = DashboardViewModel(
-            FakeScoreRepository(),
-            FakeActivityRepository(),
-            FakeImmediateSync(),
-            clock,
-            zone,
-        )
+        val viewModel = viewModel()
         viewModel.testWithInternalState(this, DashboardState(isLoading = false, today = today)) {
             containerHost.onSleepClick()
             expectSideEffect(DashboardEffect.OpenSleep)
@@ -105,13 +95,7 @@ class DashboardViewModelTest {
     @Test
     fun refresh_requestsImmediateSync() = runTest {
         val sync = FakeImmediateSync()
-        val viewModel = DashboardViewModel(
-            FakeScoreRepository(),
-            FakeActivityRepository(),
-            sync,
-            clock,
-            zone,
-        )
+        val viewModel = viewModel(sync = sync)
         viewModel.testWithInternalState(this, DashboardState(isLoading = false, today = today)) {
             containerHost.refresh()
             expectInternalState { copy(isRefreshing = true) }
@@ -119,6 +103,13 @@ class DashboardViewModelTest {
         }
         assertEquals(1, sync.requests)
     }
+
+    private fun viewModel(
+        scores: ScoreRepository = FakeScoreRepository(),
+        activity: ActivityRepository = FakeActivityRepository(),
+        settings: UserSettingsRepository = FakeUserSettingsRepository(),
+        sync: ImmediateSync = FakeImmediateSync(),
+    ) = DashboardViewModel(scores, activity, settings, sync, clock, zone)
 }
 
 private class FakeScoreRepository(vararg scores: DailyScores) : ScoreRepository {
@@ -133,6 +124,13 @@ private class FakeActivityRepository(
     override fun observeMetrics(start: LocalDate, endExclusive: LocalDate): Flow<List<DailyMetrics>> = metricsFlow
     override fun observeExercise(start: Instant, end: Instant): Flow<List<ExerciseSession>> =
         MutableStateFlow(emptyList())
+}
+
+private class FakeUserSettingsRepository : UserSettingsRepository {
+    override val settings = MutableStateFlow(UserSettings.Default)
+    override suspend fun update(transform: (UserSettings) -> UserSettings) {
+        settings.value = transform(settings.value)
+    }
 }
 
 private class FakeImmediateSync : ImmediateSync {

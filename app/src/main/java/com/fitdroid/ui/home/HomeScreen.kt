@@ -7,6 +7,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
@@ -24,12 +26,16 @@ import androidx.compose.ui.res.stringResource
 import com.fitdroid.R
 import com.fitdroid.feature.activity.ActivityScreen
 import com.fitdroid.feature.dashboard.DashboardScreen
+import com.fitdroid.feature.reports.ReportsScreen
+import com.fitdroid.feature.settings.SettingsScreen
 import com.fitdroid.feature.sleep.SleepScreen
 
 enum class HomeTab {
     Dashboard,
     Sleep,
     Activity,
+    Reports,
+    Settings,
 }
 
 @Composable
@@ -51,6 +57,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 HomeTab.Sleep -> SleepScreen()
 
                 HomeTab.Activity -> ActivityScreen()
+
+                HomeTab.Reports -> ReportsScreen()
+
+                HomeTab.Settings -> SettingsScreen()
             }
         }
     }
@@ -87,6 +97,8 @@ private val HomeTab.icon: ImageVector
         HomeTab.Dashboard -> Icons.Filled.Home
         HomeTab.Sleep -> Icons.Filled.Hotel
         HomeTab.Activity -> Icons.AutoMirrored.Filled.DirectionsWalk
+        HomeTab.Reports -> Icons.Filled.Insights
+        HomeTab.Settings -> Icons.Filled.Settings
     }
 
 private val HomeTab.labelRes: Int
@@ -94,4 +106,6 @@ private val HomeTab.labelRes: Int
         HomeTab.Dashboard -> R.string.home_tab_dashboard
         HomeTab.Sleep -> R.string.home_tab_sleep
         HomeTab.Activity -> R.string.home_tab_activity
+        HomeTab.Reports -> R.string.home_tab_reports
+        HomeTab.Settings -> R.string.home_tab_settings
     }

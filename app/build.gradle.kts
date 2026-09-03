@@ -41,6 +41,8 @@ dependencies {
     implementation(projects.feature.dashboard)
     implementation(projects.feature.sleepScreen)
     implementation(projects.feature.activityScreen)
+    implementation(projects.feature.reports)
+    implementation(projects.feature.settings)
     implementation(libs.metrox.android)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)

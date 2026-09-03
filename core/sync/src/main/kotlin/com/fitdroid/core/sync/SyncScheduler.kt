@@ -38,6 +38,10 @@ class SyncScheduler(private val context: Context) {
         )
     }
 
+    fun cancelPeriodic() {
+        WorkManager.getInstance(context).cancelUniqueWork(SyncWorker.UNIQUE_PERIODIC_WORK)
+    }
+
     companion object {
         const val RepeatIntervalHours = 1L
     }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_settings_title">Settings</string>
+    <string name="feature_settings_goals">Goals</string>
+    <string name="feature_settings_sleep_target">Sleep target</string>
+    <string name="feature_settings_steps">Steps</string>
+    <string name="feature_settings_active_minutes">Active minutes</string>
+    <string name="feature_settings_cardio_minutes">Cardio minutes</string>
+    <string name="feature_settings_decrease">Decrease</string>
+    <string name="feature_settings_increase">Increase</string>
+    <string name="feature_settings_sync">Sync</string>
+    <string name="feature_settings_sync_now">Sync now</string>
+    <string name="feature_settings_periodic">Hourly background sync</string>
+    <string name="feature_settings_health_connect">Health Connect</string>
+    <string name="feature_settings_google_health">Google Health</string>
+    <string name="feature_settings_last_sync">Last success: %1$s</string>
+    <string name="feature_settings_last_attempt">Last attempt: %1$s</string>
+    <string name="feature_settings_never">Never synced</string>
+    <string name="feature_settings_open_health_connect">Open Health Connect</string>
+    <string name="feature_settings_account">Account</string>
+    <string name="feature_settings_google_linked">Linked</string>
+    <string name="feature_settings_google_not_linked">Not linked</string>
+    <string name="feature_settings_google_disabled">Google Health stays off until the Restricted-scope review is complete. The app still scores from Health Connect.</string>
+    <string name="feature_settings_link">Link Google Health</string>
+    <string name="feature_settings_unlink">Unlink</string>
+    <string name="feature_settings_linking">Opening Google sign-in…</string>
+</resources>

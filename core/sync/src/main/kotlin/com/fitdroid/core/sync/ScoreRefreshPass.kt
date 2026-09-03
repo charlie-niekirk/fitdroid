@@ -1,18 +1,20 @@
 package com.fitdroid.core.sync
 
 import com.fitdroid.core.scoring.ScoringEngine
+import com.fitdroid.core.scoring.toScoringGoals
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.flow.first
 
 @SingleIn(AppScope::class)
 @Inject
 class ScoreRefreshPass(
     private val store: LocalHealthStore,
-    private val engine: ScoringEngine,
+    private val settings: UserSettingsRepository,
     private val clock: Clock,
     private val zoneId: ZoneId,
 ) {
@@ -26,6 +28,7 @@ class ScoreRefreshPass(
         val dates = generateSequence(scoreStart) { it.plusDays(1) }
             .takeWhile { !it.isAfter(today) }
             .toList()
+        val engine = ScoringEngine(goals = settings.settings.first().toScoringGoals(), zoneId = zoneId)
         val scores = engine.scoreDates(
             dates = dates,
             sleepSessions = store.sleepInRange(sleepStart, end),

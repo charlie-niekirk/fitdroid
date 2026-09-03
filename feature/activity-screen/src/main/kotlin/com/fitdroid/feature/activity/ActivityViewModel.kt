@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.fitdroid.core.database.ActivityRepository
 import com.fitdroid.core.database.ScoreRepository
 import com.fitdroid.core.sync.ImmediateSync
+import com.fitdroid.core.sync.UserSettingsRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -22,6 +23,7 @@ import org.orbitmvi.orbit.viewmodel.orbitContainer
 class ActivityViewModel(
     private val activity: ActivityRepository,
     private val scores: ScoreRepository,
+    private val settings: UserSettingsRepository,
     private val sync: ImmediateSync,
     clock: Clock,
     private val zoneId: ZoneId,
@@ -61,7 +63,8 @@ class ActivityViewModel(
                 scores.observeInRange(rangeStart, rangeEndExclusive),
                 activity.observeMetrics(rangeStart, rangeEndExclusive),
                 activity.observeExercise(exerciseStart, exerciseEnd),
-            ) { scoreList, metrics, exercises ->
+                settings.settings,
+            ) { scoreList, metrics, exercises, userSettings ->
                 ActivityState(
                     isLoading = false,
                     isRefreshing = false,
@@ -73,6 +76,7 @@ class ActivityViewModel(
                     metricsByDate = metrics.associateBy { it.date },
                     exercisesByDate = exercises.groupBy { it.start.atZone(zoneId).toLocalDate() },
                     recentScores = scoreList.sortedBy { it.date }.mapNotNull { it.activity?.score?.toFloat() },
+                    stepGoal = userSettings.steps,
                 )
             }.collect { next ->
                 reduce { next.copy(selectedDate = state.selectedDate) }

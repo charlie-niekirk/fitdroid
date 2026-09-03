@@ -7,7 +7,9 @@ import com.fitdroid.core.model.ActivityScoreBreakdown
 import com.fitdroid.core.model.DailyMetrics
 import com.fitdroid.core.model.DailyScores
 import com.fitdroid.core.model.ExerciseSession
+import com.fitdroid.core.model.UserSettings
 import com.fitdroid.core.sync.ImmediateSync
+import com.fitdroid.core.sync.UserSettingsRepository
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -46,6 +48,7 @@ class ActivityViewModelTest {
                 exercises = listOf(workout),
             ),
             FakeScoreRepository(DailyScores(today, sleep = null, readiness = null, activity = score)),
+            FakeUserSettingsRepository(),
             FakeImmediateSync(),
             clock,
             zone,
@@ -74,6 +77,7 @@ class ActivityViewModelTest {
         val viewModel = ActivityViewModel(
             FakeActivityRepository(),
             FakeScoreRepository(),
+            FakeUserSettingsRepository(),
             FakeImmediateSync(),
             clock,
             zone,
@@ -91,6 +95,7 @@ class ActivityViewModelTest {
         val viewModel = ActivityViewModel(
             FakeActivityRepository(),
             FakeScoreRepository(),
+            FakeUserSettingsRepository(),
             sync,
             clock,
             zone,
@@ -117,6 +122,13 @@ private class FakeActivityRepository(
 private class FakeScoreRepository(vararg scores: DailyScores) : ScoreRepository {
     private val flow = MutableStateFlow(scores.toList())
     override fun observeInRange(start: LocalDate, endExclusive: LocalDate): Flow<List<DailyScores>> = flow
+}
+
+private class FakeUserSettingsRepository : UserSettingsRepository {
+    override val settings = MutableStateFlow(UserSettings.Default)
+    override suspend fun update(transform: (UserSettings) -> UserSettings) {
+        settings.value = transform(settings.value)
+    }
 }
 
 private class FakeImmediateSync : ImmediateSync {

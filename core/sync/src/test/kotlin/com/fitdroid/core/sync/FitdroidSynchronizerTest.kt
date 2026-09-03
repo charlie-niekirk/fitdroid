@@ -5,17 +5,18 @@ import com.fitdroid.core.model.DailyMetrics
 import com.fitdroid.core.model.SleepSession
 import com.fitdroid.core.model.SleepStage
 import com.fitdroid.core.model.SleepStageType
+import com.fitdroid.core.model.UserSettings
 import com.fitdroid.core.network.GoogleHealthClient
 import com.fitdroid.core.network.GoogleHealthFeatureFlag
 import com.fitdroid.core.network.HealthDataType
 import com.fitdroid.core.network.model.DataPoint
 import com.fitdroid.core.network.model.IdentityResponse
-import com.fitdroid.core.scoring.ScoringEngine
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -45,7 +46,7 @@ class FitdroidSynchronizerTest {
                 clock = clock,
                 zoneId = zone,
             ),
-            scoreRefreshPass = ScoreRefreshPass(store, ScoringEngine(zoneId = zone), clock, zone),
+            scoreRefreshPass = ScoreRefreshPass(store, FakeUserSettingsRepository(), clock, zone),
             store = store,
             clock = clock,
         )
@@ -66,7 +67,7 @@ class FitdroidSynchronizerTest {
             sleep += night(date)
             metrics[date] = DailyMetrics(date = date, steps = 5_000, restingHeartRateBpm = 58)
         }
-        val pass = ScoreRefreshPass(store, ScoringEngine(zoneId = zone), clock, zone)
+        val pass = ScoreRefreshPass(store, FakeUserSettingsRepository(), clock, zone)
 
         pass.refresh()
 
@@ -76,6 +77,23 @@ class FitdroidSynchronizerTest {
         assertTrue(scores?.readiness!!.usingDegradedModel)
         assertTrue(scores.activity != null)
         assertEquals(50, scores.activity!!.breakdown.steps)
+    }
+
+    @Test
+    fun scoreRefresh_usesUserStepGoal() = runTest {
+        val store = FakeLocalHealthStore().apply {
+            metrics[date] = DailyMetrics(date = date, steps = 5_000)
+        }
+        val pass = ScoreRefreshPass(
+            store,
+            FakeUserSettingsRepository(UserSettings(steps = 5_000)),
+            clock,
+            zone,
+        )
+
+        pass.refresh()
+
+        assertEquals(100, store.scores[date]?.activity?.breakdown?.steps)
     }
 
     private fun night(wakeDate: LocalDate): SleepSession {
@@ -108,4 +126,14 @@ private object UnusedGoogleHealthClient : GoogleHealthClient {
         startInclusive: Instant,
         endExclusive: Instant,
     ) = Result.Success(emptyList<DataPoint>())
+}
+
+private class FakeUserSettingsRepository(
+    initial: UserSettings = UserSettings.Default,
+) : UserSettingsRepository {
+    private val flow = MutableStateFlow(initial)
+    override val settings = flow
+    override suspend fun update(transform: (UserSettings) -> UserSettings) {
+        flow.value = transform(flow.value)
+    }
 }

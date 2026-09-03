@@ -3,4 +3,6 @@
     <string name="home_tab_dashboard">Today</string>
     <string name="home_tab_sleep">Sleep</string>
     <string name="home_tab_activity">Activity</string>
+    <string name="home_tab_reports">Reports</string>
+    <string name="home_tab_settings">Settings</string>
 </resources>

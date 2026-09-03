@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_reports_title">Reports</string>
+    <string name="feature_reports_week">Week</string>
+    <string name="feature_reports_month">Month</string>
+    <string name="feature_reports_previous">Previous</string>
+    <string name="feature_reports_next">Next</string>
+    <string name="feature_reports_empty">No scores in this period yet. Sync a few nights of sleep to see trends.</string>
+    <string name="feature_reports_days">%1$d of %2$d days with scores</string>
+    <string name="feature_reports_sleep">Sleep</string>
+    <string name="feature_reports_readiness">Readiness</string>
+    <string name="feature_reports_activity">Activity</string>
+    <string name="feature_reports_sleep_trend">Sleep trend</string>
+    <string name="feature_reports_readiness_trend">Readiness trend</string>
+    <string name="feature_reports_activity_trend">Activity trend</string>
+    <string name="feature_reports_sleep_breakdown">Sleep components</string>
+    <string name="feature_reports_readiness_breakdown">Readiness components</string>
+    <string name="feature_reports_activity_breakdown">Activity components</string>
+    <string name="feature_reports_component_duration">Duration</string>
+    <string name="feature_reports_component_restorative">Restorative</string>
+    <string name="feature_reports_component_efficiency">Efficiency</string>
+    <string name="feature_reports_component_disturbances">Disturbances</string>
+    <string name="feature_reports_component_consistency">Consistency</string>
+    <string name="feature_reports_component_hrv">HRV</string>
+    <string name="feature_reports_component_rhr">Resting heart rate</string>
+    <string name="feature_reports_component_sleep">Sleep</string>
+    <string name="feature_reports_component_training">Training load</string>
+    <string name="feature_reports_component_steps">Steps</string>
+    <string name="feature_reports_component_minutes">Active minutes</string>
+    <string name="feature_reports_component_cardio">Cardio load</string>
+    <string name="feature_reports_trend">%1$d vs previous</string>
+    <string name="feature_reports_dash">—</string>
+    <string name="feature_reports_readiness_degraded">Some days used resting heart rate and sleep only.</string>
+</resources>
