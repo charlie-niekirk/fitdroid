@@ -115,7 +115,7 @@ internal fun SleepState.toUiState(
         hypnogram = stages.map { stage ->
             stage.toHypnogramSegment(start, windowMillis, classic = true)
         },
-        stagedHypnogram = (stagedStages.base + stagedStages.restlessness)
+        stagedHypnogram = (stagedStages.visualBase + stagedStages.restlessness)
             .sortedBy { it.start }
             .map { stage -> stage.toHypnogramSegment(start, windowMillis) },
         lightDuration = Formatters.duration(stagedStages.base.total(SleepStageType.Light)),
@@ -160,9 +160,11 @@ private val AsleepStageTypes = setOf(
 )
 
 private val RestlessnessMaximumDuration: Duration = Duration.ofMinutes(5)
+private val VisualInterruptionMaximumDuration: Duration = Duration.ofMinutes(2)
 
 private data class StagedStages(
     val base: List<SleepStage>,
+    val visualBase: List<SleepStage>,
     val restlessness: List<SleepStage>,
 )
 
@@ -188,7 +190,11 @@ private fun List<SleepStage>.toStagedStages(
             if (isRestlessness) stage.copy(type = SleepStageType.Light) else stage
         }
         .mergeAdjacentStages()
-    return StagedStages(base = base, restlessness = restlessness)
+    return StagedStages(
+        base = base,
+        visualBase = base.smoothShortInterruptions(),
+        restlessness = restlessness,
+    )
 }
 
 private fun List<SleepStage>.mergeAdjacentStages(): List<SleepStage> =
@@ -205,6 +211,34 @@ private fun List<SleepStage>.mergeAdjacentStages(): List<SleepStage> =
         }
         merged
     }
+
+private fun List<SleepStage>.smoothShortInterruptions(): List<SleepStage> {
+    var result = this
+    while (true) {
+        val interruptionIndex = result.indices.firstOrNull { index ->
+            if (index == 0 || index == result.lastIndex) return@firstOrNull false
+            val previous = result[index - 1]
+            val interruption = result[index]
+            val next = result[index + 1]
+            previous.type == next.type &&
+                interruption.type != previous.type &&
+                previous.type in AsleepStageTypes &&
+                interruption.type in AsleepStageTypes &&
+                interruption.duration <= VisualInterruptionMaximumDuration &&
+                !interruption.start.isAfter(previous.end) &&
+                !next.start.isAfter(interruption.end)
+        } ?: return result
+        result = result
+            .mapIndexed { index, stage ->
+                if (index == interruptionIndex) {
+                    stage.copy(type = result[index - 1].type)
+                } else {
+                    stage
+                }
+            }
+            .mergeAdjacentStages()
+    }
+}
 
 private fun SleepStage.toHypnogramSegment(
     nightStart: Instant?,

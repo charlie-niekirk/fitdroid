@@ -159,6 +159,55 @@ class SleepViewModelTest {
     }
 
     @Test
+    fun toUiState_smoothsShortVisualInterruptionsWithoutChangingDurations() {
+        val start = today.atStartOfDay().toInstant(zone)
+        val session = SleepSession(
+            id = "rapid-transitions",
+            start = start,
+            end = start.plusSeconds(20 * 60),
+            stages = listOf(
+                SleepStage(SleepStageType.Rem, start, start.plusSeconds(60)),
+                SleepStage(
+                    SleepStageType.AwakeInBed,
+                    start.plusSeconds(60),
+                    start.plusSeconds(2 * 60),
+                ),
+                SleepStage(
+                    SleepStageType.Rem,
+                    start.plusSeconds(2 * 60),
+                    start.plusSeconds(3 * 60),
+                ),
+                SleepStage(
+                    SleepStageType.Light,
+                    start.plusSeconds(3 * 60),
+                    start.plusSeconds(4 * 60),
+                ),
+                SleepStage(
+                    SleepStageType.Rem,
+                    start.plusSeconds(4 * 60),
+                    start.plusSeconds(20 * 60),
+                ),
+            ),
+        )
+
+        val ui = SleepState(
+            isLoading = false,
+            selectedDate = today,
+            today = today,
+            sessions = listOf(session),
+        ).toUiState(zone, locale)
+
+        assertEquals("18m", ui.remDuration)
+        assertEquals("2m", ui.lightDuration)
+        assertEquals("1m", ui.restlessnessDuration)
+        assertEquals(2, ui.stagedHypnogram.size)
+        assertEquals(
+            Duration.ofMinutes(20),
+            ui.stagedHypnogram.single { it.type == SleepStageType.Rem }.duration,
+        )
+    }
+
+    @Test
     fun selectPreviousNight_movesSelectedDate() = runTest {
         val viewModel = SleepViewModel(
             FakeSleepRepository(),
