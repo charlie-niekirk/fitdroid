@@ -15,8 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -40,10 +42,11 @@ private val LabelHeight = 20.dp
 private val LabelTrackGap = 4.dp
 private val TrackHeight = 24.dp
 private val LaneGap = 12.dp
-private val StageOverflow = 4.dp
 private val ChartHeight = 232.dp
 private val ConnectorThreshold = 8.dp
 private val AwakeMinimumWidth = 4.dp
+private val ConnectorWidth = 3.dp
+private const val ConnectorAlpha = 0.28f
 
 @Composable
 fun StagedHypnogram(
@@ -76,7 +79,6 @@ fun StagedHypnogram(
         append(". $startTimeLabel to $endTimeLabel")
     }
     val trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-    val connectorColor = MaterialTheme.colorScheme.outlineVariant
 
     Column(
         modifier = modifier
@@ -97,7 +99,6 @@ fun StagedHypnogram(
                 val laneGap = LaneGap.toPx()
                 val labelHeight = LabelHeight.toPx()
                 val labelTrackGap = LabelTrackGap.toPx()
-                val overflow = StageOverflow.toPx()
                 val trackTopByStage = StageOrder.mapIndexed { index, type ->
                     type to index * (labelHeight + labelTrackGap + trackHeight + laneGap) +
                         labelHeight + labelTrackGap
@@ -114,32 +115,58 @@ fun StagedHypnogram(
                 val chronological = segments
                     .filter { it.type in StageOrder }
                     .sortedBy { it.startFraction }
-                chronological.zipWithNext().forEach { (previous, current) ->
-                    val previousWidth = (previous.endFraction - previous.startFraction) * size.width
-                    val currentWidth = (current.endFraction - current.startFraction) * size.width
-                    if (
-                        previous.type != current.type &&
-                        previousWidth >= ConnectorThreshold.toPx() &&
-                        currentWidth >= ConnectorThreshold.toPx() &&
-                        abs(previous.endFraction - current.startFraction) <= 0.002f
-                    ) {
-                        val x = ((previous.endFraction + current.startFraction) / 2f) * size.width
-                        val previousCenter = trackTopByStage.getValue(previous.type) + trackHeight / 2
-                        val currentCenter = trackTopByStage.getValue(current.type) + trackHeight / 2
-                        drawLine(
-                            color = connectorColor,
-                            start = Offset(x, previousCenter),
-                            end = Offset(x, currentCenter),
-                            strokeWidth = 2.dp.toPx(),
-                            cap = StrokeCap.Round,
+                val connections = chronological.zipWithNext()
+                    .mapIndexedNotNull { index, (previous, current) ->
+                        val previousWidth = (previous.endFraction - previous.startFraction) * size.width
+                        val currentWidth = (current.endFraction - current.startFraction) * size.width
+                        if (
+                            previous.type != current.type &&
+                            previousWidth >= ConnectorThreshold.toPx() &&
+                            currentWidth >= ConnectorThreshold.toPx() &&
+                            abs(previous.endFraction - current.startFraction) <= 0.002f
+                        ) {
+                            StageConnection(index, index + 1)
+                        } else {
+                            null
+                        }
+                    }
+
+                connections.forEach { connection ->
+                    val previous = chronological[connection.fromIndex]
+                    val current = chronological[connection.toIndex]
+                    val x = previous.endFraction * size.width
+                    val previousTop = trackTopByStage.getValue(previous.type)
+                    val currentTop = trackTopByStage.getValue(current.type)
+                    val previousColor = previous.type.hypnogramColor().copy(alpha = ConnectorAlpha)
+                    val currentColor = current.type.hypnogramColor().copy(alpha = ConnectorAlpha)
+                    val (top, bottom, colors) = if (previousTop < currentTop) {
+                        Triple(
+                            previousTop + trackHeight,
+                            currentTop,
+                            listOf(previousColor, currentColor),
+                        )
+                    } else {
+                        Triple(
+                            currentTop + trackHeight,
+                            previousTop,
+                            listOf(currentColor, previousColor),
                         )
                     }
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = colors,
+                            startY = top,
+                            endY = bottom,
+                        ),
+                        topLeft = Offset(x - ConnectorWidth.toPx() / 2, top),
+                        size = Size(ConnectorWidth.toPx(), bottom - top),
+                    )
                 }
 
-                chronological.forEach { segment ->
+                chronological.forEachIndexed { index, segment ->
                     val trackTop = trackTopByStage.getValue(segment.type)
                     val rawWidth = (segment.endFraction - segment.startFraction) * size.width
-                    if (rawWidth <= 0f) return@forEach
+                    if (rawWidth <= 0f) return@forEachIndexed
                     val segmentWidth = if (segment.type == SleepStageType.Awake) {
                         max(rawWidth, AwakeMinimumWidth.toPx())
                     } else {
@@ -152,22 +179,27 @@ fun StagedHypnogram(
                     } else {
                         rawX
                     }
-                    val top = when (segment.type) {
-                        SleepStageType.Rem -> trackTop - overflow
-                        else -> trackTop
+                    val startConnected = connections.any { it.toIndex == index }
+                    val endConnected = connections.any { it.fromIndex == index }
+                    val rounded = CornerRadius(trackHeight / 2)
+                    val square = CornerRadius(0f)
+                    val path = Path().apply {
+                        addRoundRect(
+                            RoundRect(
+                                left = x,
+                                top = trackTop,
+                                right = x + segmentWidth,
+                                bottom = trackTop + trackHeight,
+                                topLeftCornerRadius = if (startConnected) square else rounded,
+                                topRightCornerRadius = if (endConnected) square else rounded,
+                                bottomRightCornerRadius = if (endConnected) square else rounded,
+                                bottomLeftCornerRadius = if (startConnected) square else rounded,
+                            ),
+                        )
                     }
-                    val height = when (segment.type) {
-                        SleepStageType.Rem,
-                        SleepStageType.Deep,
-                        -> trackHeight + overflow
-
-                        else -> trackHeight
-                    }
-                    drawRoundRect(
+                    drawPath(
+                        path = path,
                         color = segment.type.hypnogramColor(),
-                        topLeft = Offset(x, top),
-                        size = Size(segmentWidth, height),
-                        cornerRadius = CornerRadius(trackHeight / 2),
                     )
                 }
             }
@@ -257,6 +289,11 @@ private fun TimelineAxis(
 private data class StageSummary(
     val label: String,
     val duration: String,
+)
+
+private data class StageConnection(
+    val fromIndex: Int,
+    val toIndex: Int,
 )
 
 @Preview(showBackground = true)
