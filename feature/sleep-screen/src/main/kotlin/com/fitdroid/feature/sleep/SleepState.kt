@@ -19,6 +19,7 @@ data class SleepState(
     val today: LocalDate = LocalDate.EPOCH,
     val sessions: List<SleepSession> = emptyList(),
     val scores: List<SleepScore> = emptyList(),
+    val useClassicHypnogram: Boolean = false,
 )
 
 data class SleepUiState(
@@ -31,6 +32,7 @@ data class SleepUiState(
     val score: Int? = null,
     val bedtimeLabel: String = "",
     val wakeLabel: String = "",
+    val midpointLabel: String = "",
     val timeInBedLabel: String = "",
     val asleepLabel: String = "",
     val hypnogram: List<HypnogramSegment> = emptyList(),
@@ -38,6 +40,7 @@ data class SleepUiState(
     val deepDuration: String = "",
     val remDuration: String = "",
     val awakeDuration: String = "",
+    val useClassicHypnogram: Boolean = false,
     val components: List<SleepComponentUi> = emptyList(),
     val trendDelta: Int? = null,
     val trendDirection: TrendDirection = TrendDirection.Flat,
@@ -74,6 +77,7 @@ internal fun SleepState.toUiState(
     val start = nightSessions.minOfOrNull { it.start }
     val end = nightSessions.maxOfOrNull { it.end }
     val timeInBed = if (start != null && end != null) Duration.between(start, end) else Duration.ZERO
+    val windowMillis = timeInBed.toMillis().coerceAtLeast(1L)
     val asleep = nightSessions.fold(Duration.ZERO) { acc, session -> acc + session.asleepDuration }
     val baseline = scores.filter {
         it.date != selectedDate && it.date >= selectedDate.minusDays(TrendBaselineDays)
@@ -92,13 +96,31 @@ internal fun SleepState.toUiState(
         score = nightScore?.score,
         bedtimeLabel = start?.let { Formatters.timeOfDay(it, zoneId, locale) }.orEmpty(),
         wakeLabel = end?.let { Formatters.timeOfDay(it, zoneId, locale) }.orEmpty(),
+        midpointLabel = start
+            ?.plusMillis(timeInBed.toMillis() / 2)
+            ?.let { Formatters.timeOfDay(it, zoneId, locale) }
+            .orEmpty(),
         timeInBedLabel = Formatters.duration(timeInBed),
         asleepLabel = Formatters.duration(asleep),
-        hypnogram = stages.map { HypnogramSegment(it.type, it.duration) },
+        hypnogram = stages.map { stage ->
+            HypnogramSegment(
+                type = stage.type,
+                duration = stage.duration,
+                startFraction = start?.let {
+                    (Duration.between(it, stage.start).toMillis() / windowMillis.toFloat())
+                        .coerceIn(0f, 1f)
+                } ?: 0f,
+                endFraction = start?.let {
+                    (Duration.between(it, stage.end).toMillis() / windowMillis.toFloat())
+                        .coerceIn(0f, 1f)
+                } ?: 0f,
+            )
+        },
         lightDuration = Formatters.duration(stages.total(SleepStageType.Light)),
         deepDuration = Formatters.duration(stages.total(SleepStageType.Deep)),
         remDuration = Formatters.duration(stages.total(SleepStageType.Rem)),
         awakeDuration = Formatters.duration(stages.total(SleepStageType.Awake)),
+        useClassicHypnogram = useClassicHypnogram,
         components = nightScore?.let { score ->
             listOf(
                 SleepComponentUi(SleepComponent.Duration, score.breakdown.duration),

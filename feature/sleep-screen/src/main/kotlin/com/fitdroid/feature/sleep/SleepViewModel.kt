@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.fitdroid.core.database.ScoreRepository
 import com.fitdroid.core.database.SleepRepository
 import com.fitdroid.core.sync.ImmediateSync
+import com.fitdroid.core.sync.UserSettingsRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -22,6 +23,7 @@ import org.orbitmvi.orbit.viewmodel.orbitContainer
 class SleepViewModel(
     private val sleep: SleepRepository,
     private val scores: ScoreRepository,
+    private val settings: UserSettingsRepository,
     private val sync: ImmediateSync,
     clock: Clock,
     private val zoneId: ZoneId,
@@ -63,15 +65,17 @@ class SleepViewModel(
             combine(
                 sleep.observeInRange(sessionStart, sessionEnd),
                 scores.observeInRange(rangeStart, rangeEndExclusive),
-            ) { sessions, scoreList ->
-                sessions to scoreList.mapNotNull { it.sleep }
-            }.collect { (sessions, sleepScores) ->
+                settings.settings,
+            ) { sessions, scoreList, userSettings ->
+                Triple(sessions, scoreList.mapNotNull { it.sleep }, userSettings.useClassicHypnogram)
+            }.collect { (sessions, sleepScores, useClassicHypnogram) ->
                 reduce {
                     state.copy(
                         isLoading = false,
                         isRefreshing = false,
                         sessions = sessions,
                         scores = sleepScores,
+                        useClassicHypnogram = useClassicHypnogram,
                     )
                 }
             }

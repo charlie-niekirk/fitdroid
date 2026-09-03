@@ -10,6 +10,8 @@ import com.fitdroid.core.model.SleepSession
 import com.fitdroid.core.model.SleepStage
 import com.fitdroid.core.model.SleepStageType
 import com.fitdroid.core.sync.ImmediateSync
+import com.fitdroid.core.sync.UserSettingsRepository
+import com.fitdroid.core.model.UserSettings
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -57,6 +59,9 @@ class SleepViewModelTest {
         assertFalse(ui.canGoNext)
         assertTrue(ui.canGoPrevious)
         assertEquals(4, ui.hypnogram.size)
+        assertEquals("2:30 AM", ui.midpointLabel)
+        assertEquals(0f, ui.hypnogram.first().startFraction, 0.001f)
+        assertEquals(1f / 7f, ui.hypnogram.first().endFraction, 0.001f)
     }
 
     @Test
@@ -71,10 +76,23 @@ class SleepViewModelTest {
     }
 
     @Test
+    fun toUiState_passesThroughClassicHypnogramSetting() {
+        val ui = SleepState(
+            isLoading = false,
+            selectedDate = today,
+            today = today,
+            useClassicHypnogram = true,
+        ).toUiState(zone, locale)
+
+        assertTrue(ui.useClassicHypnogram)
+    }
+
+    @Test
     fun selectPreviousNight_movesSelectedDate() = runTest {
         val viewModel = SleepViewModel(
             FakeSleepRepository(),
             FakeScoreRepository(),
+            FakeUserSettingsRepository(),
             FakeImmediateSync(),
             clock,
             zone,
@@ -92,6 +110,7 @@ class SleepViewModelTest {
         val viewModel = SleepViewModel(
             FakeSleepRepository(),
             FakeScoreRepository(),
+            FakeUserSettingsRepository(),
             sync,
             clock,
             zone,
@@ -139,5 +158,13 @@ private class FakeImmediateSync : ImmediateSync {
     var requests = 0
     override fun request() {
         requests++
+    }
+}
+
+private class FakeUserSettingsRepository : UserSettingsRepository {
+    override val settings = MutableStateFlow(UserSettings.Default)
+
+    override suspend fun update(transform: (UserSettings) -> UserSettings) {
+        settings.value = transform(settings.value)
     }
 }

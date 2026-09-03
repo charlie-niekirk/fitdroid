@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.fitdroid.core.designsystem.component.Hypnogram
 import com.fitdroid.core.designsystem.component.HypnogramSegment
 import com.fitdroid.core.designsystem.component.ScoreRing
+import com.fitdroid.core.designsystem.component.StagedHypnogram
 import com.fitdroid.core.designsystem.component.TrendChip
 import com.fitdroid.core.designsystem.component.TrendDirection
 import com.fitdroid.core.designsystem.theme.FitdroidTheme
@@ -140,12 +141,29 @@ internal fun SleepContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(16.dp))
-                    Hypnogram(segments = state.hypnogram)
-                    Spacer(Modifier.height(16.dp))
-                    StageRow(stringResource(R.string.feature_sleep_screen_deep), state.deepDuration)
-                    StageRow(stringResource(R.string.feature_sleep_screen_rem), state.remDuration)
-                    StageRow(stringResource(R.string.feature_sleep_screen_light), state.lightDuration)
-                    StageRow(stringResource(R.string.feature_sleep_screen_awake), state.awakeDuration)
+                    if (state.useClassicHypnogram) {
+                        Hypnogram(segments = state.hypnogram)
+                        Spacer(Modifier.height(16.dp))
+                        StageRow(stringResource(R.string.feature_sleep_screen_deep), state.deepDuration)
+                        StageRow(stringResource(R.string.feature_sleep_screen_rem), state.remDuration)
+                        StageRow(stringResource(R.string.feature_sleep_screen_light), state.lightDuration)
+                        StageRow(stringResource(R.string.feature_sleep_screen_awake), state.awakeDuration)
+                    } else {
+                        StagedHypnogram(
+                            segments = state.hypnogram,
+                            awakeLabel = stringResource(R.string.feature_sleep_screen_awake),
+                            awakeDuration = state.awakeDuration,
+                            remLabel = stringResource(R.string.feature_sleep_screen_rem),
+                            remDuration = state.remDuration,
+                            lightLabel = stringResource(R.string.feature_sleep_screen_light),
+                            lightDuration = state.lightDuration,
+                            deepLabel = stringResource(R.string.feature_sleep_screen_deep),
+                            deepDuration = state.deepDuration,
+                            startTimeLabel = state.bedtimeLabel,
+                            midpointTimeLabel = state.midpointLabel,
+                            endTimeLabel = state.wakeLabel,
+                        )
+                    }
                     Spacer(Modifier.height(24.dp))
                     Text(
                         text = stringResource(R.string.feature_sleep_screen_breakdown),
@@ -241,13 +259,15 @@ private fun SleepContentPreview() {
                 score = 84,
                 bedtimeLabel = "10:12 PM",
                 wakeLabel = "6:04 AM",
+                midpointLabel = "2:08 AM",
                 timeInBedLabel = "7h 52m",
                 asleepLabel = "7h 21m",
                 hypnogram = listOf(
-                    HypnogramSegment(SleepStageType.Awake, Duration.ofMinutes(12)),
-                    HypnogramSegment(SleepStageType.Light, Duration.ofMinutes(90)),
-                    HypnogramSegment(SleepStageType.Deep, Duration.ofMinutes(70)),
-                    HypnogramSegment(SleepStageType.Rem, Duration.ofMinutes(45)),
+                    HypnogramSegment(SleepStageType.Awake, Duration.ofMinutes(12), 0f, 0.025f),
+                    HypnogramSegment(SleepStageType.Light, Duration.ofMinutes(90), 0.025f, 0.31f),
+                    HypnogramSegment(SleepStageType.Deep, Duration.ofMinutes(70), 0.31f, 0.53f),
+                    HypnogramSegment(SleepStageType.Rem, Duration.ofMinutes(45), 0.53f, 0.67f),
+                    HypnogramSegment(SleepStageType.Light, Duration.ofMinutes(100), 0.67f, 1f),
                 ),
                 lightDuration = "3h 10m",
                 deepDuration = "1h 40m",
