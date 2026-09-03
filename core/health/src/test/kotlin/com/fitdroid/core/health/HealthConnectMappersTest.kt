@@ -23,6 +23,10 @@ class HealthConnectMappersTest {
     fun sleepStageType_mapsHealthConnectConstants() {
         assertEquals(SleepStageType.Awake, sleepStageType(SleepSessionRecord.STAGE_TYPE_AWAKE))
         assertEquals(SleepStageType.Awake, sleepStageType(SleepSessionRecord.STAGE_TYPE_OUT_OF_BED))
+        assertEquals(
+            SleepStageType.AwakeInBed,
+            sleepStageType(SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED),
+        )
         assertEquals(SleepStageType.Light, sleepStageType(SleepSessionRecord.STAGE_TYPE_LIGHT))
         assertEquals(SleepStageType.Deep, sleepStageType(SleepSessionRecord.STAGE_TYPE_DEEP))
         assertEquals(SleepStageType.Rem, sleepStageType(SleepSessionRecord.STAGE_TYPE_REM))

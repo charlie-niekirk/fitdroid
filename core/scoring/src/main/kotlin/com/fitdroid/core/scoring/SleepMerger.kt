@@ -47,7 +47,7 @@ internal fun List<SleepSession>.nightsEndingOn(date: LocalDate, zoneId: ZoneId):
 internal fun NightSleep.memorableAwakenings(): Int {
     val minMemorable = Duration.ofMinutes(5)
     var count = stages.count { stage ->
-        stage.type == SleepStageType.Awake &&
+        (stage.type == SleepStageType.Awake || stage.type == SleepStageType.AwakeInBed) &&
             stage.duration >= minMemorable &&
             stage.start > start &&
             stage.end < end

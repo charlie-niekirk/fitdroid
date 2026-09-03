@@ -36,9 +36,10 @@ internal fun SleepSessionRecord.Stage.toSleepStage(): SleepStage =
 internal fun sleepStageType(hcStage: Int): SleepStageType =
     when (hcStage) {
         SleepSessionRecord.STAGE_TYPE_AWAKE,
-        SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED,
         SleepSessionRecord.STAGE_TYPE_OUT_OF_BED,
         -> SleepStageType.Awake
+
+        SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED -> SleepStageType.AwakeInBed
 
         SleepSessionRecord.STAGE_TYPE_LIGHT,
         SleepSessionRecord.STAGE_TYPE_SLEEPING,
