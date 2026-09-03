@@ -25,6 +25,8 @@ import java.time.Duration
 data class HypnogramSegment(
     val type: SleepStageType,
     val duration: Duration,
+    val startFraction: Float = 0f,
+    val endFraction: Float = 0f,
 )
 
 @Composable
@@ -50,7 +52,7 @@ fun Hypnogram(
     }
 }
 
-private fun SleepStageType.hypnogramColor(): Color = when (this) {
+internal fun SleepStageType.hypnogramColor(): Color = when (this) {
     SleepStageType.Awake -> AwakeColor
     SleepStageType.Light -> LightSleepColor
     SleepStageType.Deep -> DeepSleepColor
