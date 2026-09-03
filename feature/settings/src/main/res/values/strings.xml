@@ -8,6 +8,9 @@
     <string name="feature_settings_cardio_minutes">Cardio minutes</string>
     <string name="feature_settings_decrease">Decrease</string>
     <string name="feature_settings_increase">Increase</string>
+    <string name="feature_settings_display">Display</string>
+    <string name="feature_settings_classic_hypnogram">Classic sleep stages chart</string>
+    <string name="feature_settings_classic_hypnogram_supporting">Use a single bar instead of the detailed stages chart.</string>
     <string name="feature_settings_sync">Sync</string>
     <string name="feature_settings_sync_now">Sync now</string>
     <string name="feature_settings_periodic">Hourly background sync</string>

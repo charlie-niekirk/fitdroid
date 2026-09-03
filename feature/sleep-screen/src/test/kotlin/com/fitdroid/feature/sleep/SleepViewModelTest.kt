@@ -9,8 +9,11 @@ import com.fitdroid.core.model.SleepScoreBreakdown
 import com.fitdroid.core.model.SleepSession
 import com.fitdroid.core.model.SleepStage
 import com.fitdroid.core.model.SleepStageType
+import com.fitdroid.core.model.UserSettings
 import com.fitdroid.core.sync.ImmediateSync
+import com.fitdroid.core.sync.UserSettingsRepository
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -57,6 +60,9 @@ class SleepViewModelTest {
         assertFalse(ui.canGoNext)
         assertTrue(ui.canGoPrevious)
         assertEquals(4, ui.hypnogram.size)
+        assertEquals("2:30 AM", ui.midpointLabel)
+        assertEquals(0f, ui.hypnogram.first().startFraction, 0.001f)
+        assertEquals(1f / 7f, ui.hypnogram.first().endFraction, 0.001f)
     }
 
     @Test
@@ -71,10 +77,96 @@ class SleepViewModelTest {
     }
 
     @Test
+    fun toUiState_passesThroughClassicHypnogramSetting() {
+        val ui = SleepState(
+            isLoading = false,
+            selectedDate = today,
+            today = today,
+            useClassicHypnogram = true,
+        ).toUiState(zone, locale)
+
+        assertTrue(ui.useClassicHypnogram)
+    }
+
+    @Test
+    fun toUiState_projectsShortInteriorAwakeStagesAsRestlessness() {
+        val ui = SleepState(
+            isLoading = false,
+            selectedDate = today,
+            today = today,
+            sessions = listOf(restlessnessSession(today)),
+        ).toUiState(zone, locale)
+
+        assertEquals("8m", ui.awakeDuration)
+        assertEquals("2m", ui.restlessnessDuration)
+        assertEquals("12m", ui.lightDuration)
+        assertEquals("35m", ui.asleepLabel)
+        assertEquals("10m", ui.classicAwakeDuration)
+        assertEquals("10m", ui.classicLightDuration)
+        assertEquals(6, ui.stagedHypnogram.size)
+        assertEquals(
+            Duration.ofMinutes(2),
+            ui.stagedHypnogram
+                .filter { it.type == SleepStageType.AwakeInBed }
+                .fold(Duration.ZERO) { total, segment -> total + segment.duration },
+        )
+    }
+
+    @Test
+    fun toUiState_smoothsShortVisualInterruptionsWithoutChangingDurations() {
+        val start = today.atStartOfDay().toInstant(zone)
+        val session = SleepSession(
+            id = "rapid-transitions",
+            start = start,
+            end = start.plusSeconds(20 * 60),
+            stages = listOf(
+                SleepStage(SleepStageType.Rem, start, start.plusSeconds(60)),
+                SleepStage(
+                    SleepStageType.AwakeInBed,
+                    start.plusSeconds(60),
+                    start.plusSeconds(2 * 60),
+                ),
+                SleepStage(
+                    SleepStageType.Rem,
+                    start.plusSeconds(2 * 60),
+                    start.plusSeconds(3 * 60),
+                ),
+                SleepStage(
+                    SleepStageType.Light,
+                    start.plusSeconds(3 * 60),
+                    start.plusSeconds(4 * 60),
+                ),
+                SleepStage(
+                    SleepStageType.Rem,
+                    start.plusSeconds(4 * 60),
+                    start.plusSeconds(20 * 60),
+                ),
+            ),
+        )
+
+        val ui = SleepState(
+            isLoading = false,
+            selectedDate = today,
+            today = today,
+            sessions = listOf(session),
+        ).toUiState(zone, locale)
+
+        assertEquals("18m", ui.remDuration)
+        assertEquals("2m", ui.lightDuration)
+        assertEquals("1m", ui.restlessnessDuration)
+        assertEquals(2, ui.stagedHypnogram.size)
+        assertEquals(
+            Duration.ofMinutes(20),
+            ui.stagedHypnogram.single { it.type == SleepStageType.Rem }.duration,
+        )
+    }
+
+    @Test
     fun selectPreviousNight_movesSelectedDate() = runTest {
         val viewModel = SleepViewModel(
             FakeSleepRepository(),
             FakeScoreRepository(),
+            FakeUserSettingsRepository(),
             FakeImmediateSync(),
             clock,
             zone,
@@ -92,6 +184,7 @@ class SleepViewModelTest {
         val viewModel = SleepViewModel(
             FakeSleepRepository(),
             FakeScoreRepository(),
+            FakeUserSettingsRepository(),
             sync,
             clock,
             zone,
@@ -103,6 +196,53 @@ class SleepViewModelTest {
         }
         assertEquals(1, sync.requests)
     }
+}
+
+private fun restlessnessSession(wakeDate: LocalDate): SleepSession {
+    val start = wakeDate.atStartOfDay().toInstant(ZoneOffset.UTC)
+    return SleepSession(
+        id = "restless-night",
+        start = start,
+        end = start.plusSeconds(43 * 60),
+        stages = listOf(
+            SleepStage(SleepStageType.Awake, start, start.plusSeconds(6 * 60)),
+            SleepStage(
+                SleepStageType.Light,
+                start.plusSeconds(6 * 60),
+                start.plusSeconds(11 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Awake,
+                start.plusSeconds(11 * 60),
+                start.plusSeconds(12 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Light,
+                start.plusSeconds(12 * 60),
+                start.plusSeconds(16 * 60),
+            ),
+            SleepStage(
+                SleepStageType.AwakeInBed,
+                start.plusSeconds(16 * 60),
+                start.plusSeconds(17 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Light,
+                start.plusSeconds(17 * 60),
+                start.plusSeconds(18 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Deep,
+                start.plusSeconds(18 * 60),
+                start.plusSeconds(41 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Awake,
+                start.plusSeconds(41 * 60),
+                start.plusSeconds(43 * 60),
+            ),
+        ),
+    )
 }
 
 private fun nightEndingOn(wakeDate: LocalDate): SleepSession {
@@ -139,5 +279,13 @@ private class FakeImmediateSync : ImmediateSync {
     var requests = 0
     override fun request() {
         requests++
+    }
+}
+
+private class FakeUserSettingsRepository : UserSettingsRepository {
+    override val settings = MutableStateFlow(UserSettings.Default)
+
+    override suspend fun update(transform: (UserSettings) -> UserSettings) {
+        settings.value = transform(settings.value)
     }
 }

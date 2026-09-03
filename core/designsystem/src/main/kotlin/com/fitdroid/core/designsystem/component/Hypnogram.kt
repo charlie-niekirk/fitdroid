@@ -18,6 +18,7 @@ import com.fitdroid.core.designsystem.theme.DeepSleepColor
 import com.fitdroid.core.designsystem.theme.FitdroidTheme
 import com.fitdroid.core.designsystem.theme.LightSleepColor
 import com.fitdroid.core.designsystem.theme.RemSleepColor
+import com.fitdroid.core.designsystem.theme.RestlessnessColor
 import com.fitdroid.core.designsystem.theme.UnknownStageColor
 import com.fitdroid.core.model.SleepStageType
 import java.time.Duration
@@ -25,6 +26,8 @@ import java.time.Duration
 data class HypnogramSegment(
     val type: SleepStageType,
     val duration: Duration,
+    val startFraction: Float = 0f,
+    val endFraction: Float = 0f,
 )
 
 @Composable
@@ -50,8 +53,9 @@ fun Hypnogram(
     }
 }
 
-private fun SleepStageType.hypnogramColor(): Color = when (this) {
+internal fun SleepStageType.hypnogramColor(): Color = when (this) {
     SleepStageType.Awake -> AwakeColor
+    SleepStageType.AwakeInBed -> RestlessnessColor
     SleepStageType.Light -> LightSleepColor
     SleepStageType.Deep -> DeepSleepColor
     SleepStageType.Rem -> RemSleepColor

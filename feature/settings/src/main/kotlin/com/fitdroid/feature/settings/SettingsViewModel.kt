@@ -49,6 +49,11 @@ class SettingsViewModel(
         reduce { state.copy(settings = state.settings.copy(periodicSyncEnabled = enabled)) }
     }
 
+    fun setUseClassicHypnogram(enabled: Boolean) = intent {
+        settingsRepository.update { it.copy(useClassicHypnogram = enabled) }
+        reduce { state.copy(settings = state.settings.copy(useClassicHypnogram = enabled)) }
+    }
+
     fun syncNow() = intent {
         reduce { state.copy(isSyncing = true) }
         sync.request()

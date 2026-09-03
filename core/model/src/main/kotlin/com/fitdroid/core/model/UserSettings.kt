@@ -6,6 +6,7 @@ data class UserSettings(
     val activeMinutes: Int = DefaultActiveMinutes,
     val cardioMinutes: Int = DefaultCardioMinutes,
     val periodicSyncEnabled: Boolean = true,
+    val useClassicHypnogram: Boolean = false,
 ) {
     companion object {
         const val DefaultSleepTargetMinutes = 8 * 60

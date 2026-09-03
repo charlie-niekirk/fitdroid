@@ -11,6 +11,7 @@
     <string name="feature_sleep_screen_rem">REM</string>
     <string name="feature_sleep_screen_light">Light</string>
     <string name="feature_sleep_screen_awake">Awake</string>
+    <string name="feature_sleep_screen_restlessness">Restlessness</string>
     <string name="feature_sleep_screen_breakdown">Why this score</string>
     <string name="feature_sleep_screen_component_duration">Duration</string>
     <string name="feature_sleep_screen_component_restorative">Restorative</string>
