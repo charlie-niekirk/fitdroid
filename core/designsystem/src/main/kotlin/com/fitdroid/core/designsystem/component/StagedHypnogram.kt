@@ -179,8 +179,28 @@ fun StagedHypnogram(
                     } else {
                         rawX
                     }
-                    val startConnected = connections.any { it.toIndex == index }
-                    val endConnected = connections.any { it.fromIndex == index }
+                    val incoming = connections.firstOrNull { it.toIndex == index }
+                    val outgoing = connections.firstOrNull { it.fromIndex == index }
+                    val incomingTop = incoming
+                        ?.let { chronological[it.fromIndex].type }
+                        ?.let(trackTopByStage::getValue)
+                        ?.let { it < trackTop }
+                        ?: false
+                    val incomingBottom = incoming
+                        ?.let { chronological[it.fromIndex].type }
+                        ?.let(trackTopByStage::getValue)
+                        ?.let { it > trackTop }
+                        ?: false
+                    val outgoingTop = outgoing
+                        ?.let { chronological[it.toIndex].type }
+                        ?.let(trackTopByStage::getValue)
+                        ?.let { it < trackTop }
+                        ?: false
+                    val outgoingBottom = outgoing
+                        ?.let { chronological[it.toIndex].type }
+                        ?.let(trackTopByStage::getValue)
+                        ?.let { it > trackTop }
+                        ?: false
                     val rounded = CornerRadius(trackHeight / 2)
                     val square = CornerRadius(0f)
                     val path = Path().apply {
@@ -190,10 +210,10 @@ fun StagedHypnogram(
                                 top = trackTop,
                                 right = x + segmentWidth,
                                 bottom = trackTop + trackHeight,
-                                topLeftCornerRadius = if (startConnected) square else rounded,
-                                topRightCornerRadius = if (endConnected) square else rounded,
-                                bottomRightCornerRadius = if (endConnected) square else rounded,
-                                bottomLeftCornerRadius = if (startConnected) square else rounded,
+                                topLeftCornerRadius = if (incomingTop) square else rounded,
+                                topRightCornerRadius = if (outgoingTop) square else rounded,
+                                bottomRightCornerRadius = if (outgoingBottom) square else rounded,
+                                bottomLeftCornerRadius = if (incomingBottom) square else rounded,
                             ),
                         )
                     }
