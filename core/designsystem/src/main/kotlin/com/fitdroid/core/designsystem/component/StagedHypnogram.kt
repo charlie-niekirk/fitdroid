@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -230,17 +229,15 @@ fun StagedHypnogram(
                         ),
                     )
                     if (hasConnection) {
-                        clipPath(path) {
-                            drawPath(
-                                path = path,
-                                color = segment.type.hypnogramColor()
-                                    .copy(alpha = ConnectedSegmentBorderAlpha),
-                                style = Stroke(
-                                    width = ConnectorWidth.toPx() * 2,
-                                    join = StrokeJoin.Round,
-                                ),
-                            )
-                        }
+                        drawPath(
+                            path = path,
+                            color = segment.type.hypnogramColor()
+                                .copy(alpha = ConnectedSegmentBorderAlpha),
+                            style = Stroke(
+                                width = ConnectorWidth.toPx(),
+                                join = StrokeJoin.Round,
+                            ),
+                        )
                     }
                 }
             }
