@@ -80,6 +80,63 @@ internal fun SleepState.toUiState(
         .filter { it.end.atZone(zoneId).toLocalDate() == selectedDate }
         .sortedBy { it.start }
     val nightScore = scores.firstOrNull { it.date == selectedDate }
+    val display = displayData(nightSessions, nightScore)
+    val trendDirection = when {
+        display.trendDelta == null || display.trendDelta == 0 -> TrendDirection.Flat
+        display.trendDelta > 0 -> TrendDirection.Up
+        else -> TrendDirection.Down
+    }
+    return SleepUiState(
+        isLoading = false,
+        isRefreshing = isRefreshing,
+        dateLabel = Formatters.localDate(selectedDate, locale),
+        canGoPrevious = selectedDate > today.minusDays(ScoreWindowDays - 1),
+        canGoNext = selectedDate < today,
+        hasNight = nightSessions.isNotEmpty(),
+        score = nightScore?.score,
+        bedtimeLabel = display.start?.let { Formatters.timeOfDay(it, zoneId, locale) }.orEmpty(),
+        wakeLabel = display.end?.let { Formatters.timeOfDay(it, zoneId, locale) }.orEmpty(),
+        midpointLabel = display.start
+            ?.plusMillis(display.timeInBed.toMillis() / 2)
+            ?.let { Formatters.timeOfDay(it, zoneId, locale) }
+            .orEmpty(),
+        timeInBedLabel = Formatters.duration(display.timeInBed),
+        asleepLabel = Formatters.duration(display.asleep),
+        hypnogram = display.classicHypnogram,
+        stagedHypnogram = display.stagedHypnogram,
+        lightDuration = Formatters.duration(display.stagedStages.base.total(SleepStageType.Light)),
+        deepDuration = Formatters.duration(display.stagedStages.base.total(SleepStageType.Deep)),
+        remDuration = Formatters.duration(display.stagedStages.base.total(SleepStageType.Rem)),
+        awakeDuration = Formatters.duration(display.stagedStages.base.total(SleepStageType.Awake)),
+        restlessnessDuration = Formatters.duration(
+            display.stagedStages.restlessness.total(SleepStageType.AwakeInBed),
+        ),
+        classicLightDuration = Formatters.duration(display.stages.total(SleepStageType.Light)),
+        classicDeepDuration = Formatters.duration(display.stages.total(SleepStageType.Deep)),
+        classicRemDuration = Formatters.duration(display.stages.total(SleepStageType.Rem)),
+        classicAwakeDuration = Formatters.duration(
+            display.stages.total(SleepStageType.Awake) +
+                display.stages.total(SleepStageType.AwakeInBed),
+        ),
+        useClassicHypnogram = useClassicHypnogram,
+        components = nightScore?.let { score ->
+            listOf(
+                SleepComponentUi(SleepComponent.Duration, score.breakdown.duration),
+                SleepComponentUi(SleepComponent.Restorative, score.breakdown.restorative),
+                SleepComponentUi(SleepComponent.Efficiency, score.breakdown.efficiency),
+                SleepComponentUi(SleepComponent.Disturbances, score.breakdown.disturbances),
+                SleepComponentUi(SleepComponent.Consistency, score.breakdown.consistency),
+            )
+        }.orEmpty(),
+        trendDelta = display.trendDelta,
+        trendDirection = trendDirection,
+    )
+}
+
+private fun SleepState.displayData(
+    nightSessions: List<SleepSession>,
+    nightScore: SleepScore?,
+): SleepDisplayData {
     val stages = nightSessions.flatMap { it.stages }.sortedBy { it.start }
     val start = nightSessions.minOfOrNull { it.start }
     val end = nightSessions.maxOfOrNull { it.end }
@@ -96,59 +153,34 @@ internal fun SleepState.toUiState(
     val trendDelta = nightScore?.score?.let { current ->
         average?.let { current - it.toInt() }
     }
-    return SleepUiState(
-        isLoading = false,
-        isRefreshing = isRefreshing,
-        dateLabel = Formatters.localDate(selectedDate, locale),
-        canGoPrevious = selectedDate > today.minusDays(ScoreWindowDays - 1),
-        canGoNext = selectedDate < today,
-        hasNight = nightSessions.isNotEmpty(),
-        score = nightScore?.score,
-        bedtimeLabel = start?.let { Formatters.timeOfDay(it, zoneId, locale) }.orEmpty(),
-        wakeLabel = end?.let { Formatters.timeOfDay(it, zoneId, locale) }.orEmpty(),
-        midpointLabel = start
-            ?.plusMillis(timeInBed.toMillis() / 2)
-            ?.let { Formatters.timeOfDay(it, zoneId, locale) }
-            .orEmpty(),
-        timeInBedLabel = Formatters.duration(timeInBed),
-        asleepLabel = Formatters.duration(asleep),
-        hypnogram = stages.map { stage ->
+    return SleepDisplayData(
+        stages = stages,
+        classicHypnogram = stages.map { stage ->
             stage.toHypnogramSegment(start, windowMillis, classic = true)
         },
+        stagedStages = stagedStages,
         stagedHypnogram = (stagedStages.visualBase + stagedStages.restlessness)
             .sortedBy { it.start }
             .map { stage -> stage.toHypnogramSegment(start, windowMillis) },
-        lightDuration = Formatters.duration(stagedStages.base.total(SleepStageType.Light)),
-        deepDuration = Formatters.duration(stagedStages.base.total(SleepStageType.Deep)),
-        remDuration = Formatters.duration(stagedStages.base.total(SleepStageType.Rem)),
-        awakeDuration = Formatters.duration(stagedStages.base.total(SleepStageType.Awake)),
-        restlessnessDuration = Formatters.duration(
-            stagedStages.restlessness.total(SleepStageType.AwakeInBed),
-        ),
-        classicLightDuration = Formatters.duration(stages.total(SleepStageType.Light)),
-        classicDeepDuration = Formatters.duration(stages.total(SleepStageType.Deep)),
-        classicRemDuration = Formatters.duration(stages.total(SleepStageType.Rem)),
-        classicAwakeDuration = Formatters.duration(
-            stages.total(SleepStageType.Awake) + stages.total(SleepStageType.AwakeInBed),
-        ),
-        useClassicHypnogram = useClassicHypnogram,
-        components = nightScore?.let { score ->
-            listOf(
-                SleepComponentUi(SleepComponent.Duration, score.breakdown.duration),
-                SleepComponentUi(SleepComponent.Restorative, score.breakdown.restorative),
-                SleepComponentUi(SleepComponent.Efficiency, score.breakdown.efficiency),
-                SleepComponentUi(SleepComponent.Disturbances, score.breakdown.disturbances),
-                SleepComponentUi(SleepComponent.Consistency, score.breakdown.consistency),
-            )
-        }.orEmpty(),
+        start = start,
+        end = end,
+        timeInBed = timeInBed,
+        asleep = asleep,
         trendDelta = trendDelta,
-        trendDirection = when {
-            trendDelta == null || trendDelta == 0 -> TrendDirection.Flat
-            trendDelta > 0 -> TrendDirection.Up
-            else -> TrendDirection.Down
-        },
     )
 }
+
+private data class SleepDisplayData(
+    val stages: List<SleepStage>,
+    val classicHypnogram: List<HypnogramSegment>,
+    val stagedStages: StagedStages,
+    val stagedHypnogram: List<HypnogramSegment>,
+    val start: Instant?,
+    val end: Instant?,
+    val timeInBed: Duration,
+    val asleep: Duration,
+    val trendDelta: Int?,
+)
 
 private fun List<SleepStage>.total(type: SleepStageType): Duration =
     filter { it.type == type }.fold(Duration.ZERO) { acc, stage -> acc + stage.duration }

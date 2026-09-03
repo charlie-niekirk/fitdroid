@@ -90,57 +90,11 @@ class SleepViewModelTest {
 
     @Test
     fun toUiState_projectsShortInteriorAwakeStagesAsRestlessness() {
-        val start = today.atStartOfDay().toInstant(zone)
-        val stages = listOf(
-            SleepStage(SleepStageType.Awake, start, start.plusSeconds(6 * 60)),
-            SleepStage(
-                SleepStageType.Light,
-                start.plusSeconds(6 * 60),
-                start.plusSeconds(11 * 60),
-            ),
-            SleepStage(
-                SleepStageType.Awake,
-                start.plusSeconds(11 * 60),
-                start.plusSeconds(12 * 60),
-            ),
-            SleepStage(
-                SleepStageType.Light,
-                start.plusSeconds(12 * 60),
-                start.plusSeconds(16 * 60),
-            ),
-            SleepStage(
-                SleepStageType.AwakeInBed,
-                start.plusSeconds(16 * 60),
-                start.plusSeconds(17 * 60),
-            ),
-            SleepStage(
-                SleepStageType.Light,
-                start.plusSeconds(17 * 60),
-                start.plusSeconds(18 * 60),
-            ),
-            SleepStage(
-                SleepStageType.Deep,
-                start.plusSeconds(18 * 60),
-                start.plusSeconds(41 * 60),
-            ),
-            SleepStage(
-                SleepStageType.Awake,
-                start.plusSeconds(41 * 60),
-                start.plusSeconds(43 * 60),
-            ),
-        )
-        val session = SleepSession(
-            id = "restless-night",
-            start = start,
-            end = start.plusSeconds(43 * 60),
-            stages = stages,
-        )
-
         val ui = SleepState(
             isLoading = false,
             selectedDate = today,
             today = today,
-            sessions = listOf(session),
+            sessions = listOf(restlessnessSession(today)),
         ).toUiState(zone, locale)
 
         assertEquals("8m", ui.awakeDuration)
@@ -242,6 +196,53 @@ class SleepViewModelTest {
         }
         assertEquals(1, sync.requests)
     }
+}
+
+private fun restlessnessSession(wakeDate: LocalDate): SleepSession {
+    val start = wakeDate.atStartOfDay().toInstant(ZoneOffset.UTC)
+    return SleepSession(
+        id = "restless-night",
+        start = start,
+        end = start.plusSeconds(43 * 60),
+        stages = listOf(
+            SleepStage(SleepStageType.Awake, start, start.plusSeconds(6 * 60)),
+            SleepStage(
+                SleepStageType.Light,
+                start.plusSeconds(6 * 60),
+                start.plusSeconds(11 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Awake,
+                start.plusSeconds(11 * 60),
+                start.plusSeconds(12 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Light,
+                start.plusSeconds(12 * 60),
+                start.plusSeconds(16 * 60),
+            ),
+            SleepStage(
+                SleepStageType.AwakeInBed,
+                start.plusSeconds(16 * 60),
+                start.plusSeconds(17 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Light,
+                start.plusSeconds(17 * 60),
+                start.plusSeconds(18 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Deep,
+                start.plusSeconds(18 * 60),
+                start.plusSeconds(41 * 60),
+            ),
+            SleepStage(
+                SleepStageType.Awake,
+                start.plusSeconds(41 * 60),
+                start.plusSeconds(43 * 60),
+            ),
+        ),
+    )
 }
 
 private fun nightEndingOn(wakeDate: LocalDate): SleepSession {
