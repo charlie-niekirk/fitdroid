@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -299,6 +300,7 @@ fun StagedHypnogram(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun StageHeader(summary: StageSummary) {
     Row(
@@ -307,7 +309,7 @@ private fun StageHeader(summary: StageSummary) {
             .height(LabelHeight),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = summary.label, style = MaterialTheme.typography.titleSmall)
+        Text(text = summary.label, style = MaterialTheme.typography.titleSmallEmphasized)
         Spacer(Modifier.width(4.dp))
         Text(
             text = "• ${summary.duration}",

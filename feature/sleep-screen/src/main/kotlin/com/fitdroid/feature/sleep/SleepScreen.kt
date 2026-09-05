@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.fitdroid.feature.sleep
 
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -72,7 +75,7 @@ internal fun SleepContent(
         ) {
             Text(
                 text = stringResource(R.string.feature_sleep_screen_title),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleLargeEmphasized,
             )
             DayPager(
                 dateLabel = state.dateLabel,
@@ -183,7 +186,7 @@ internal fun SleepContent(
                     Spacer(Modifier.height(24.dp))
                     Text(
                         text = stringResource(R.string.feature_sleep_screen_breakdown),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                     )
                     Spacer(Modifier.height(8.dp))
                     state.components.forEach { component ->
@@ -215,7 +218,7 @@ internal fun DayPager(
         TextButton(onClick = onPrevious, enabled = canGoPrevious) {
             Text(stringResource(R.string.feature_sleep_screen_previous))
         }
-        Text(text = dateLabel, style = MaterialTheme.typography.titleMedium)
+        Text(text = dateLabel, style = MaterialTheme.typography.titleMediumEmphasized)
         TextButton(onClick = onNext, enabled = canGoNext) {
             Text(stringResource(R.string.feature_sleep_screen_next))
         }

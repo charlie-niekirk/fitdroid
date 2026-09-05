@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.fitdroid.feature.activity
 
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -74,7 +77,7 @@ internal fun ActivityContent(
         ) {
             Text(
                 text = stringResource(R.string.feature_activity_screen_title),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleLargeEmphasized,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -86,7 +89,7 @@ internal fun ActivityContent(
                 }
                 Text(
                     text = Formatters.localDate(state.selectedDate),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMediumEmphasized,
                 )
                 TextButton(onClick = onNext, enabled = state.canGoNext) {
                     Text(stringResource(R.string.feature_activity_screen_next))
@@ -125,7 +128,7 @@ internal fun ActivityContent(
                     val steps = state.metrics?.steps ?: 0L
                     Text(
                         text = stringResource(R.string.feature_activity_screen_steps),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                     )
                     Text(
                         text = stringResource(
@@ -160,7 +163,7 @@ internal fun ActivityContent(
                         Spacer(Modifier.height(24.dp))
                         Text(
                             text = stringResource(R.string.feature_activity_screen_breakdown),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleMediumEmphasized,
                         )
                         Spacer(Modifier.height(8.dp))
                         ScoreComponentRow(
@@ -180,7 +183,7 @@ internal fun ActivityContent(
                         Spacer(Modifier.height(24.dp))
                         Text(
                             text = stringResource(R.string.feature_activity_screen_trend),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleMediumEmphasized,
                         )
                         Spacer(Modifier.height(8.dp))
                         Sparkline(values = state.recentScores)
@@ -189,7 +192,7 @@ internal fun ActivityContent(
                         Spacer(Modifier.height(24.dp))
                         Text(
                             text = stringResource(R.string.feature_activity_screen_workouts),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleMediumEmphasized,
                         )
                         Spacer(Modifier.height(8.dp))
                         state.exercises.forEach { session ->

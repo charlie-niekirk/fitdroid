@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.fitdroid.feature.dashboard
 
 import androidx.compose.foundation.clickable
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -95,7 +98,7 @@ internal fun DashboardContent(
                 ) {
                     Text(
                         text = stringResource(R.string.feature_dashboard_empty_title),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleLargeEmphasized,
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -115,7 +118,7 @@ internal fun DashboardContent(
                 ) {
                     Text(
                         text = stringResource(R.string.feature_dashboard_title),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleLargeEmphasized,
                     )
                     Text(
                         text = Formatters.localDate(state.today),
@@ -159,14 +162,14 @@ internal fun DashboardContent(
                     Spacer(Modifier.height(24.dp))
                     Text(
                         text = stringResource(R.string.feature_dashboard_sleep_trend),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                     )
                     Spacer(Modifier.height(8.dp))
                     Sparkline(values = state.sleepTrend)
                     Spacer(Modifier.height(24.dp))
                     Text(
                         text = stringResource(R.string.feature_dashboard_steps),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                     )
                     Spacer(Modifier.height(8.dp))
                     val steps = state.steps ?: 0L

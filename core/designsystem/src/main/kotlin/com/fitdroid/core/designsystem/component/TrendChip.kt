@@ -3,10 +3,12 @@ package com.fitdroid.core.designsystem.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +22,7 @@ enum class TrendDirection {
     Flat,
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TrendChip(
     text: String,
@@ -33,7 +36,7 @@ fun TrendChip(
     }
     Surface(
         modifier = modifier,
-        shape = CircleShape,
+        shape = MaterialShapes.Pill.toShape(),
         color = MaterialTheme.colorScheme.secondaryContainer,
     ) {
         Row(
@@ -43,7 +46,7 @@ fun TrendChip(
         ) {
             Text(
                 text = "$arrow $text",
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelLargeEmphasized,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
         }
