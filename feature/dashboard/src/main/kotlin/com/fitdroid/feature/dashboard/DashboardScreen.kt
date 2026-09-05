@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.fitdroid.feature.dashboard
 
 import androidx.compose.foundation.clickable
@@ -13,11 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,6 +26,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.fitdroid.core.designsystem.component.FitdroidLoadingIndicator
+import com.fitdroid.core.designsystem.component.FitdroidPullToRefreshBox
+import com.fitdroid.core.designsystem.component.FitdroidWavyProgress
 import com.fitdroid.core.designsystem.component.ScoreRing
 import com.fitdroid.core.designsystem.component.Sparkline
 import com.fitdroid.core.designsystem.theme.FitdroidTheme
@@ -72,7 +75,7 @@ internal fun DashboardContent(
     onActivityClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    PullToRefreshBox(
+    FitdroidPullToRefreshBox(
         isRefreshing = state.isRefreshing,
         onRefresh = onRefresh,
         modifier = modifier.fillMaxSize(),
@@ -80,7 +83,7 @@ internal fun DashboardContent(
         when {
             state.isLoading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    FitdroidLoadingIndicator()
                 }
             }
 
@@ -95,7 +98,7 @@ internal fun DashboardContent(
                 ) {
                     Text(
                         text = stringResource(R.string.feature_dashboard_empty_title),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleLargeEmphasized,
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -115,7 +118,7 @@ internal fun DashboardContent(
                 ) {
                     Text(
                         text = stringResource(R.string.feature_dashboard_title),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleLargeEmphasized,
                     )
                     Text(
                         text = Formatters.localDate(state.today),
@@ -159,14 +162,14 @@ internal fun DashboardContent(
                     Spacer(Modifier.height(24.dp))
                     Text(
                         text = stringResource(R.string.feature_dashboard_sleep_trend),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                     )
                     Spacer(Modifier.height(8.dp))
                     Sparkline(values = state.sleepTrend)
                     Spacer(Modifier.height(24.dp))
                     Text(
                         text = stringResource(R.string.feature_dashboard_steps),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                     )
                     Spacer(Modifier.height(8.dp))
                     val steps = state.steps ?: 0L
@@ -179,9 +182,8 @@ internal fun DashboardContent(
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     Spacer(Modifier.height(8.dp))
-                    LinearProgressIndicator(
+                    FitdroidWavyProgress(
                         progress = { (steps / state.stepGoal.toFloat()).coerceIn(0f, 1f) },
-                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }

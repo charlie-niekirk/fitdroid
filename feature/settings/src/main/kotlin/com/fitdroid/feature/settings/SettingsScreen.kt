@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.fitdroid.feature.settings
 
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -16,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.fitdroid.core.designsystem.component.FitdroidLoadingIndicator
 import com.fitdroid.core.designsystem.theme.FitdroidTheme
 import com.fitdroid.core.health.HealthConnectLauncher
 import com.fitdroid.core.model.SyncState
@@ -102,11 +105,11 @@ internal fun SettingsContent(
     ) {
         Text(
             text = stringResource(R.string.feature_settings_title),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleLargeEmphasized,
         )
         if (state.isLoading) {
             Spacer(Modifier.height(48.dp))
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            FitdroidLoadingIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else {
             SettingsLoadedContent(
                 state = state,
@@ -282,7 +285,7 @@ private fun SettingsLoadedContent(
 private fun SectionTitle(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
-        style = MaterialTheme.typography.titleMedium,
+        style = MaterialTheme.typography.titleMediumEmphasized,
         modifier = modifier.padding(bottom = 8.dp),
     )
 }
@@ -314,7 +317,7 @@ private fun GoalStepper(
         }
         Text(
             text = value,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMediumEmphasized,
         )
         IconButton(onClick = onIncrease) {
             Icon(

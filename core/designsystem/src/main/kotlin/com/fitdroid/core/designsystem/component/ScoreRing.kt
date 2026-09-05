@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.fitdroid.core.designsystem.theme.FitdroidTheme
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ScoreRing(
     score: Int,
@@ -58,7 +60,10 @@ fun ScoreRing(
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = clamped.toString(), style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = clamped.toString(),
+                style = MaterialTheme.typography.headlineMediumEmphasized,
+            )
             if (label != null) {
                 Text(text = label, style = MaterialTheme.typography.labelSmall)
             }

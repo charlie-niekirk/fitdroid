@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.fitdroid.feature.reports
 
 import androidx.compose.foundation.layout.Arrangement
@@ -12,8 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -27,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.fitdroid.core.designsystem.component.FitdroidLoadingIndicator
+import com.fitdroid.core.designsystem.component.FitdroidWavyProgress
 import com.fitdroid.core.designsystem.component.ScoreRing
 import com.fitdroid.core.designsystem.component.Sparkline
 import com.fitdroid.core.designsystem.component.TrendChip
@@ -66,7 +69,7 @@ internal fun ReportsContent(
     ) {
         Text(
             text = stringResource(R.string.feature_reports_title),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleLargeEmphasized,
         )
         Spacer(Modifier.height(12.dp))
         PeriodSelector(period = state.period, onSelectPeriod = onSelectPeriod)
@@ -78,7 +81,7 @@ internal fun ReportsContent(
             TextButton(onClick = onPrevious, enabled = state.canGoPrevious) {
                 Text(stringResource(R.string.feature_reports_previous))
             }
-            Text(text = state.periodLabel, style = MaterialTheme.typography.titleMedium)
+            Text(text = state.periodLabel, style = MaterialTheme.typography.titleMediumEmphasized)
             TextButton(onClick = onNext, enabled = state.canGoNext) {
                 Text(stringResource(R.string.feature_reports_next))
             }
@@ -91,7 +94,7 @@ internal fun ReportsContent(
                         .height(240.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator()
+                    FitdroidLoadingIndicator()
                 }
             }
 
@@ -248,7 +251,7 @@ private fun TrendSection(title: String, values: List<Float>, modifier: Modifier 
     if (values.size < 2) return
     Column(modifier = modifier) {
         Spacer(Modifier.height(24.dp))
-        Text(text = title, style = MaterialTheme.typography.titleMedium)
+        Text(text = title, style = MaterialTheme.typography.titleMediumEmphasized)
         Spacer(Modifier.height(8.dp))
         Sparkline(values = values)
     }
@@ -263,7 +266,7 @@ private fun ComponentSection(
     if (components.isEmpty()) return
     Column(modifier = modifier) {
         Spacer(Modifier.height(24.dp))
-        Text(text = title, style = MaterialTheme.typography.titleMedium)
+        Text(text = title, style = MaterialTheme.typography.titleMediumEmphasized)
         Spacer(Modifier.height(8.dp))
         components.forEach { component ->
             ScoreComponentRow(
@@ -288,9 +291,8 @@ private fun ScoreComponentRow(label: String, score: Int?, modifier: Modifier = M
             )
         }
         Spacer(Modifier.height(4.dp))
-        LinearProgressIndicator(
+        FitdroidWavyProgress(
             progress = { ((score ?: 0) / 100f).coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

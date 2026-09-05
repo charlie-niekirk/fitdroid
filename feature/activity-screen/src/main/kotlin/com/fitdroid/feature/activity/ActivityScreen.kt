@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.fitdroid.feature.activity
 
 import androidx.compose.foundation.layout.Arrangement
@@ -11,12 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -24,6 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.fitdroid.core.designsystem.component.FitdroidLoadingIndicator
+import com.fitdroid.core.designsystem.component.FitdroidPullToRefreshBox
+import com.fitdroid.core.designsystem.component.FitdroidWavyProgress
 import com.fitdroid.core.designsystem.component.ScoreRing
 import com.fitdroid.core.designsystem.component.Sparkline
 import com.fitdroid.core.designsystem.theme.FitdroidTheme
@@ -61,7 +64,7 @@ internal fun ActivityContent(
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    PullToRefreshBox(
+    FitdroidPullToRefreshBox(
         isRefreshing = state.isRefreshing,
         onRefresh = onRefresh,
         modifier = modifier.fillMaxSize(),
@@ -74,7 +77,7 @@ internal fun ActivityContent(
         ) {
             Text(
                 text = stringResource(R.string.feature_activity_screen_title),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleLargeEmphasized,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -86,7 +89,7 @@ internal fun ActivityContent(
                 }
                 Text(
                     text = Formatters.localDate(state.selectedDate),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMediumEmphasized,
                 )
                 TextButton(onClick = onNext, enabled = state.canGoNext) {
                     Text(stringResource(R.string.feature_activity_screen_next))
@@ -100,7 +103,7 @@ internal fun ActivityContent(
                             .height(240.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator()
+                        FitdroidLoadingIndicator()
                     }
                 }
 
@@ -125,7 +128,7 @@ internal fun ActivityContent(
                     val steps = state.metrics?.steps ?: 0L
                     Text(
                         text = stringResource(R.string.feature_activity_screen_steps),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMediumEmphasized,
                     )
                     Text(
                         text = stringResource(
@@ -136,9 +139,8 @@ internal fun ActivityContent(
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     Spacer(Modifier.height(8.dp))
-                    LinearProgressIndicator(
+                    FitdroidWavyProgress(
                         progress = { (steps / state.stepGoal.toFloat()).coerceIn(0f, 1f) },
-                        modifier = Modifier.fillMaxWidth(),
                     )
                     Spacer(Modifier.height(16.dp))
                     MetricRow(
@@ -161,7 +163,7 @@ internal fun ActivityContent(
                         Spacer(Modifier.height(24.dp))
                         Text(
                             text = stringResource(R.string.feature_activity_screen_breakdown),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleMediumEmphasized,
                         )
                         Spacer(Modifier.height(8.dp))
                         ScoreComponentRow(
@@ -181,7 +183,7 @@ internal fun ActivityContent(
                         Spacer(Modifier.height(24.dp))
                         Text(
                             text = stringResource(R.string.feature_activity_screen_trend),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleMediumEmphasized,
                         )
                         Spacer(Modifier.height(8.dp))
                         Sparkline(values = state.recentScores)
@@ -190,7 +192,7 @@ internal fun ActivityContent(
                         Spacer(Modifier.height(24.dp))
                         Text(
                             text = stringResource(R.string.feature_activity_screen_workouts),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleMediumEmphasized,
                         )
                         Spacer(Modifier.height(8.dp))
                         state.exercises.forEach { session ->
@@ -227,9 +229,8 @@ private fun ScoreComponentRow(label: String, score: Int, modifier: Modifier = Mo
             Text(text = score.toString(), style = MaterialTheme.typography.bodyMedium)
         }
         Spacer(Modifier.height(4.dp))
-        LinearProgressIndicator(
+        FitdroidWavyProgress(
             progress = { (score / 100f).coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
