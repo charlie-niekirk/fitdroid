@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.fitdroid.ui.home
 
 import androidx.compose.foundation.layout.Box
@@ -9,11 +11,12 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ShortNavigationBar
+import androidx.compose.material3.ShortNavigationBarDefaults
+import androidx.compose.material3.ShortNavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -72,12 +75,12 @@ internal fun HomeNavigationBar(
     onSelect: (HomeTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    NavigationBar(
+    ShortNavigationBar(
         modifier = modifier,
-        windowInsets = NavigationBarDefaults.windowInsets,
+        windowInsets = ShortNavigationBarDefaults.windowInsets,
     ) {
         HomeTab.entries.forEach { tab ->
-            NavigationBarItem(
+            ShortNavigationBarItem(
                 selected = selected == tab,
                 onClick = { onSelect(tab) },
                 icon = {
