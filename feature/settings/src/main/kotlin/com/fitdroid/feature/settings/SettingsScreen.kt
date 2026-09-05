@@ -16,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.fitdroid.core.designsystem.component.FitdroidLoadingIndicator
 import com.fitdroid.core.designsystem.theme.FitdroidTheme
 import com.fitdroid.core.health.HealthConnectLauncher
 import com.fitdroid.core.model.SyncState
@@ -106,7 +106,7 @@ internal fun SettingsContent(
         )
         if (state.isLoading) {
             Spacer(Modifier.height(48.dp))
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            FitdroidLoadingIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else {
             SettingsLoadedContent(
                 state = state,

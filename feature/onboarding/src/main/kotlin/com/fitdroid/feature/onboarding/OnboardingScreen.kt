@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import com.fitdroid.core.designsystem.component.FitdroidLoadingIndicator
 import com.fitdroid.core.designsystem.theme.FitdroidTheme
 import com.fitdroid.core.health.HealthConnectAvailability
 import com.fitdroid.core.health.HealthConnectLauncher
@@ -110,7 +110,7 @@ internal fun OnboardingContent(
     when (state.step) {
         OnboardingStep.Loading -> {
             Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                FitdroidLoadingIndicator()
             }
         }
 
